@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ko" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>쇼호스트 이채원 · LIVE COMMERCE SHOW HOST</title>
+<meta name="description" content="매출로 이어지는 진행, 브랜드를 빛내는 소통. 패션 · 웰니스 · 홈리빙 · 여행레저 라이브커머스 쇼호스트 이채원의 경력과 방송 포트폴리오.">
+<link rel="canonical" href="https://moshim.kr/chaewon/">
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="쇼호스트 이채원">
+<meta property="og:title" content="쇼호스트 이채원 · LIVE COMMERCE SHOW HOST">
+<meta property="og:description" content="매출로 이어지는 진행, 브랜드를 빛내는 소통">
+<meta property="og:url" content="https://moshim.kr/chaewon/">
+<meta property="og:image" content="https://moshim.kr/chaewon/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FE86AA">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" as="image" imagesrcset="img/hero-cut-m.webp 594w, img/hero-cut.webp 960w" imagesizes="(max-width: 699px) 39vh, 46vh">
+<link rel="stylesheet" href="fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<link rel="stylesheet" href="css/style.css">
+<script>
+  document.documentElement.classList.replace('no-js', 'js');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('rm');
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+</script>
+</head>
+<body>
+
+<div class="loader" aria-hidden="true">
+  <div class="loader-live"><i></i>LIVE</div>
+  <p class="loader-msg"><span class="loader-bars"><i></i><i></i><i></i><i></i></span><span class="loader-text">방송 연결 중</span></p>
+  <div class="loader-count">
+    <svg class="loader-ring" viewBox="0 0 200 200"><circle cx="100" cy="100" r="92"/></svg>
+    <svg class="loader-heart" viewBox="0 0 200 200"><path class="loader-heart-from" d="M100,8 C150.8,8 192,49.2 192,100 C192,150.8 150.8,192 100,192 C49.2,192 8,150.8 8,100 C8,49.2 49.2,8 100,8 Z"/><path class="loader-heart-to" d="M100,182 C42,142 10,108 10,72 C10,42 33,20 61,20 C79,20 92,30 100,46 C108,30 121,20 139,20 C167,20 190,42 190,72 C190,108 158,142 100,182 Z"/></svg>
+    <b class="loader-num"></b>
+  </div>
+  <div class="loader-line"><i></i></div>
+  <div class="loader-wipe"></div>
+</div>
+
+<div class="progress" aria-hidden="true"><i></i></div>
+<div class="cursor" aria-hidden="true"><i class="cursor-dot"></i><i class="cursor-ring"><b></b></i></div>
+
+<main>
+
+  <!-- ON AIR: hero, then the same shot becomes a live stream on a phone -->
+  <section id="onair" class="onair scene" aria-label="쇼호스트 이채원 소개">
+    <div class="stage">
+      <canvas class="stage-gl" aria-hidden="true"></canvas>
+      <div class="stage-type" aria-hidden="true">
+        <span class="stage-row stage-row--1">SHOW</span>
+        <span class="stage-row stage-row--2">HOST</span>
+      </div>
+      <img class="person-shadow" src="img/hero-shadow.webp" srcset="img/hero-shadow-m.webp 594w, img/hero-shadow.webp 960w" sizes="(max-width: 699px) 39vh, 46vh" width="960" height="2100" alt="">
+      <div class="person">
+        <img class="person-cut" src="img/hero-cut.webp" srcset="img/hero-cut-m.webp 594w, img/hero-cut.webp 960w" sizes="(max-width: 699px) 39vh, 46vh" width="960" height="2100" alt="분홍 배경 앞에서 블루 톤 운동복을 입고 포즈를 취한 쇼호스트 이채원">
+        <nav class="tags" aria-label="방송 카테고리 바로가기">
+          <a class="tag tag--1" href="#lives" data-cat="fashion"><i></i><span>FASHION <b>8</b></span></a>
+          <a class="tag tag--2" href="#lives" data-cat="wellness"><i></i><span>WELLNESS <b>4</b></span></a>
+          <a class="tag tag--3" href="#lives" data-cat="home"><i></i><span>HOME &amp; LIVING <b>4</b></span></a>
+          <a class="tag tag--4" href="#lives" data-cat="travel"><i></i><span>TRAVEL &amp; LEISURE <b>4</b></span></a>
+        </nav>
+      </div>
+      <div class="viewfinder" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="phone" aria-hidden="true">
+      <div class="phone-frame"></div>
+      <div class="phone-ui">
+        <div class="phone-top">
+          <img class="phone-avatar" src="img/avatar.webp" width="160" height="160" alt="">
+          <div class="phone-who"><b>이채원</b><span>쇼호스트</span></div>
+          <span class="live-pill"><i></i>LIVE</span>
+          <span class="live-clock" data-clock>00:00</span>
+        </div>
+        <div class="phone-side">
+          <button class="phone-heart" type="button" tabindex="-1"><svg viewBox="0 0 32 32"><path d="M16 27.5C6.5 21 3 16.2 3 11.3 3 7.6 5.9 4.8 9.4 4.8c2.6 0 4.9 1.5 6.6 3.9 1.7-2.4 4-3.9 6.6-3.9 3.5 0 6.4 2.8 6.4 6.5 0 4.9-3.5 9.7-13 16.2z"/></svg><b data-hearts-count>0</b></button>
+        </div>
+        <a class="phone-card" href="#contact" tabindex="-1">
+          <span class="phone-card-kicker">LIVE 섭외</span>
+          <b>쇼호스트 이채원</b>
+          <span class="phone-card-cta">섭외 문의</span>
+        </a>
+      </div>
+    </div>
+
+    <canvas class="hearts" aria-hidden="true"></canvas>
+
+    <header class="hero-copy">
+      <p class="hero-eyebrow"><span class="live-pill"><i></i>LIVE</span><span class="live-clock" data-clock>00:00</span><span class="hero-role">LIVE COMMERCE SHOW HOST</span></p>
+      <h1 class="hero-name"><span class="hero-ko">쇼호스트 <strong>이채원</strong></span><span class="hero-en">LEE CHAEWON</span></h1>
+      <p class="hero-tagline"><span>매출로 이어지는 진행,</span> <span>브랜드를 빛내는 소통</span></p>
+    </header>
+
+    <div class="statement">
+      <p class="statement-kicker">Be Healthy &amp; Wellthy</p>
+      <h2 class="statement-title">
+        <span class="statement-line"><span class="hl">현장에는</span> <em class="w-energy">에너지</em>를,</span>
+        <span class="statement-line"><span class="hl">방송에는</span> <em class="w-trust">신뢰</em>를</span>
+        <span class="statement-line">전하는 진행자</span>
+      </h2>
+      <ul class="statement-cats">
+        <li>FASHION</li><li>WELLNESS</li><li>HOME &amp; LIVING</li><li>TRAVEL &amp; LEISURE</li>
+      </ul>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true"><span>SCROLL</span><i></i></div>
+  </section>
+
+  <!-- 01 ON AIR DATA -->
+  <section id="data" class="data">
+    <div class="sec-head">
+      <p class="sec-no">01</p>
+      <h2 class="sec-title" data-split>ON AIR DATA</h2>
+      <p class="sec-sub">숫자로 보는 라이브</p>
+    </div>
+    <ul class="stats">
+      <li class="stat">
+        <b class="odo" data-value="81" data-unit="만+">81<span class="odo-unit">만+</span></b>
+        <span class="stat-label">대표 방송 누적 시청</span>
+        <span class="stat-note">다시보기 12편 합계 · 2026.10.17 기준</span>
+      </li>
+      <li class="stat">
+        <b class="odo" data-value="20">20</b>
+        <span class="stat-label">대표 방송 포트폴리오</span>
+        <span class="stat-note">카테고리별로 고른 라이브 20편</span>
+      </li>
+      <li class="stat">
+        <b class="odo" data-value="45" data-unit="+">45+</b>
+        <span class="stat-label">함께한 브랜드</span>
+        <span class="stat-note">LG gram · 삼성전자 · 정관장 · 풀무원 외</span>
+      </li>
+      <li class="stat">
+        <b class="odo" data-value="10">10</b>
+        <span class="stat-label">진행 플랫폼</span>
+        <span class="stat-note">네이버 · 카카오 · 쿠팡 · 그립 · 쓱라이브 외</span>
+      </li>
+    </ul>
+    <div class="ranking">
+      <div class="ranking-head">
+        <h3>시청 TOP 5</h3>
+        <p>포트폴리오에 담긴 다시보기 12편 가운데 시청 수 상위 다섯 편이에요. 네이버 쇼핑라이브 표시 기준, 2026년 10월 17일에 확인했어요.</p>
+        <a class="rank-detail" href="https://naver.me/IDkOQ61K" target="_blank" rel="noopener" aria-live="polite">
+          <span class="rank-detail-k"><span class="live-pill"><i></i>REPLAY</span><span data-k>1위 · 2026.06.26</span></span>
+          <b class="rank-detail-t" data-t>푸마 바디웨어 BEST 어워즈</b>
+          <span class="rank-detail-c" data-c>푸마 바디웨어 공식스토어 · 280,557회</span>
+        </a>
+      </div>
+      <ol class="rank-list">
+        <li class="rank" tabindex="0" data-title="푸마 바디웨어 BEST 어워즈" data-channel="푸마 바디웨어 공식스토어" style="--v:100"><span class="rank-no">1</span><img class="rank-thumb" src="img/t-p3-2.webp" width="536" height="860" loading="lazy" alt=""><div class="rank-body"><p class="rank-name"><a href="https://naver.me/IDkOQ61K" target="_blank" rel="noopener">PUMA BODYWEAR</a><small>2026.06.26</small></p><div class="rank-track"><i class="rank-bar"></i><b class="rank-val" data-count="280557">280,557회</b></div></div></li>
+        <li class="rank" tabindex="0" data-title="나만 없어, 오버더 바이크!" data-channel="OVERTHE" style="--v:78.7"><span class="rank-no">2</span><img class="rank-thumb" src="img/t-p5-4.webp" width="536" height="860" loading="lazy" alt=""><div class="rank-body"><p class="rank-name"><a href="https://naver.me/FXkLn1fJ" target="_blank" rel="noopener">OVERTHE</a><small>2025.07.31</small></p><div class="rank-track"><i class="rank-bar"></i><b class="rank-val" data-count="220748">220,748회</b></div></div></li>
+        <li class="rank" tabindex="0" data-title="풀무원 리셋클렌즈 48시간" data-channel="풀무원건강생활" style="--v:41.7"><span class="rank-no">3</span><img class="rank-thumb" src="img/t-p5-3.webp" width="536" height="860" loading="lazy" alt=""><div class="rank-body"><p class="rank-name"><a href="https://naver.me/xNpbPbwd" target="_blank" rel="noopener">풀무원</a><small>2026.07.30</small></p><div class="rank-track"><i class="rank-bar"></i><b class="rank-val" data-count="116901">116,901회</b></div></div></li>
+        <li class="rank" tabindex="0" data-title="서해랑 제부도해상케이블카 × 파주임진각평화곤돌라" data-channel="" style="--v:26.5"><span class="rank-no">4</span><img class="rank-thumb" src="img/t-p7-1.webp" width="536" height="860" loading="lazy" alt=""><div class="rank-body"><p class="rank-name"><a href="https://naver.me/GpCL8i4a" target="_blank" rel="noopener">서해랑 × 평화곤돌라</a><small>2024.10.02</small></p><div class="rank-track"><i class="rank-bar"></i><b class="rank-val" data-count="74218">74,218회</b></div></div></li>
+        <li class="rank" tabindex="0" data-title="오버더바이크 &amp; 통곡의계단" data-channel="OVERTHE" style="--v:22.5"><span class="rank-no">5</span><img class="rank-thumb" src="img/t-p5-2.webp" width="494" height="793" loading="lazy" alt=""><div class="rank-body"><p class="rank-name"><a href="https://naver.me/xwo26Ey2" target="_blank" rel="noopener">OVERTHE</a><small>2026.03.30</small></p><div class="rank-track"><i class="rank-bar"></i><b class="rank-val" data-count="63038">63,038회</b></div></div></li>
+      </ol>
+    </div>
+    <div class="brandwall" aria-label="함께한 브랜드">
+      <div class="brandwall-row">
+        <ul class="brandwall-track">
+          <li>LG gram</li><li>삼성전자</li><li>LG전자</li><li>정관장</li><li>풀무원</li><li>PUMA BODYWEAR</li><li>Calvin Klein</li><li>유한양행</li><li>캐논</li><li>샤오미</li><li>SATIN</li><li>KLPGA</li><li>DOROSIWA</li><li>트로이아르케</li><li>나트라케어</li><li>바쉬</li>
+        </ul>
+      </div>
+      <div class="brandwall-row brandwall-row--rev">
+        <ul class="brandwall-track">
+          <li>OVERTHE</li><li>ERGOBODY</li><li>Aer</li><li>ODDANGLE</li><li>브람스</li><li>FAU</li><li>RE:NK</li><li>몽삭</li><li>셀마주</li><li>NS 프로틴</li><li>베이스틴</li><li>비아지오</li><li>폰드패션몰</li><li>푸스토어</li><li>워터밤 2026</li><li>서해랑 제부도해상케이블카</li><li>파주임진각 평화곤돌라</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 BEST ON AIR: one gesture per broadcast -->
+  <section id="best" class="best scene" aria-label="대표 방송">
+    <div class="best-bg" aria-hidden="true"></div>
+    <p class="best-word" aria-hidden="true"></p>
+    <div class="sec-head best-head">
+      <p class="sec-no">02</p>
+      <h2 class="sec-title" data-split>BEST ON AIR</h2>
+      <p class="sec-sub">대표 방송</p>
+    </div>
+    <div class="best-frame">
+      <canvas class="best-gl" aria-hidden="true"></canvas>
+      <span class="best-badge"><i></i>REPLAY</span>
+    </div>
+    <ol class="best-list">
+      <li class="best-item" data-bg="#DDE7FF" data-ink="#22324F">
+        <img class="best-img" src="img/f-lg.webp" width="891" height="1600" loading="lazy" alt="LG전자 생활가전 라이브에서 식기세척기와 공기청정기 옆에 선 이채원과 공동 진행자">
+        <p class="best-no">01</p>
+        <p class="best-cat">HOME &amp; LIVING</p>
+        <h3 class="best-title">LG전자</h3>
+        <p class="best-desc">생활가전 라이브 · 2026.08.06 · 공동 진행</p>
+        <a class="best-link" href="https://youtube.com/shorts/VBcknkIJFeo" target="_blank" rel="noopener">방송 다시보기 <span>YouTube</span></a>
+      </li>
+      <li class="best-item" data-bg="#FBE4EC" data-ink="#3A2233">
+        <img class="best-img" src="img/f-satin.webp" width="1080" height="1440" loading="lazy" alt="SATIN 여성 의류 라이브 스튜디오에 선 이채원과 공동 진행자">
+        <p class="best-no">02</p>
+        <p class="best-cat">FASHION</p>
+        <h3 class="best-title">SATIN</h3>
+        <p class="best-desc">여성 의류 라이브 · 공동 진행</p>
+      </li>
+      <li class="best-item" data-bg="#F7EEE3" data-ink="#2B2A33">
+        <img class="best-img" src="img/f-polo.webp" width="900" height="1600" loading="lazy" alt="흰 폴로 셔츠를 맞춰 입고 하트 포즈를 취한 이채원과 공동 진행자">
+        <p class="best-no">03</p>
+        <p class="best-cat">FASHION</p>
+        <h3 class="best-title">폴로 셔츠</h3>
+        <p class="best-desc">남녀 의류 라이브 · 공동 진행</p>
+      </li>
+      <li class="best-item" data-bg="#FFF1C9" data-ink="#2F2A1E">
+        <img class="best-img" src="img/f-galaxy.webp" width="1123" height="1499" loading="lazy" alt="양손에 스마트폰을 들고 미소 짓는 이채원">
+        <p class="best-no">04</p>
+        <p class="best-cat">IT · MOBILE</p>
+        <h3 class="best-title">IT · 모바일</h3>
+        <p class="best-desc">LG gram 전속 쇼호스트 · 갤럭시 Z 폴드5 · 플립5 런칭 방송 · 삼성전자 갤럭시 큐레이터</p>
+      </li>
+    </ol>
+    <div class="best-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  </section>
+
+  <!-- 03 SIGNATURE -->
+  <section id="signature" class="sig">
+    <div class="sig-sticker" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><path id="stk" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"/></defs><text><textPath href="#stk">ON AIR · LIVE COMMERCE · ON AIR · LIVE COMMERCE · </textPath></text></svg><b>LIVE</b></div>
+    <div class="sec-head">
+      <p class="sec-no">03</p>
+      <h2 class="sec-title" data-split>SIGNATURE</h2>
+      <p class="sec-sub">전속 · 런칭 · 고정 · 매출로 증명한 진행</p>
+    </div>
+    <ol class="sig-list">
+      <li class="sig-row"><span class="sig-tag">전속</span><b class="sig-main">LG gram 전속 쇼호스트</b><span class="sig-sub">신세계 · 네이버 쇼핑라이브 · 카카오</span></li>
+      <li class="sig-row"><span class="sig-tag">전속</span><b class="sig-main">롯데하이마트 하트라이브</b><span class="sig-sub">전속 쇼호스트 · 삼성전자 노트북 대전</span></li>
+      <li class="sig-row"><span class="sig-tag">런칭</span><b class="sig-main">갤럭시 Z 폴드5 · 플립5</b><span class="sig-sub">삼성전자 신제품 런칭 방송 · 갤럭시탭 아카데미 시즌</span></li>
+      <li class="sig-row"><span class="sig-tag">고정</span><b class="sig-main">트로이아르케</b><span class="sig-sub">고정 프로그램 쇼호스트</span></li>
+      <li class="sig-row sig-row--hot"><span class="sig-tag">매출 1위</span><b class="sig-main">샤오미 로봇청소기 9세대</b><span class="sig-sub">전채널 통합 매출 1위</span></li>
+    </ol>
+    <div class="platforms">
+      <p class="platforms-label"><span class="live-pill"><i></i>ON AIR</span> 진행 플랫폼 10</p>
+      <div class="platforms-row">
+        <ul class="platforms-track">
+          <li>네이버 쇼핑라이브</li><li>카카오쇼핑라이브</li><li>쿠팡 라이브</li><li>그립 Grip</li><li>신세계 쓱라이브</li><li>롯데 엘라이브</li><li>배달의민족</li><li>롯데하이마트 하트라이브</li><li>더현대 라이브</li><li>패션플러스</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 HOW I HOST -->
+  <section id="style" class="style">
+    <div class="sec-head">
+      <p class="sec-no">04</p>
+      <h2 class="sec-title" data-split>HOW I HOST</h2>
+      <p class="sec-sub">진행 스타일 · 본인 인터뷰에서</p>
+    </div>
+    <div class="style-top">
+      <blockquote class="style-quote">
+        <p class="style-quote-text">팩트에 <em>임팩트</em>를 더해 전달하는 쇼호스트</p>
+        <p class="style-quote-sub">단순한 ‘설명’이 아닌 ‘판매’를 실현하기 위해, 다양한 시각에서 상품의 매력을 발굴합니다.</p>
+      </blockquote>
+      <div class="chat">
+        <p class="chat-label">#섭외해야 하는 이유</p>
+        <div class="chat-window">
+          <ul class="chat-track">
+            <li>#팩트에 임팩트를 더한 리듬감 있는 진행</li><li>#비유법달인</li><li>#쉽게설명</li><li>#보이스강약조절</li><li>#매출을위한방송</li><li>#텐션에너지</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <ul class="style-cards">
+      <li class="style-card"><span class="style-no">01</span><b class="style-key">대화</b><p>화면 너머 고객님들과 ‘대화’하는 느낌</p></li>
+      <li class="style-card"><span class="style-no">02</span><b class="style-key">비유</b><p>어린아이도 이해하기 쉬운 ‘비유 표현’</p></li>
+      <li class="style-card"><span class="style-no">03</span><b class="style-key">티키타카</b><p>상대 진행자와의 매끄러운 ‘티키타카’</p></li>
+    </ul>
+    <div class="beats">
+      <p class="beats-q">어떤 진행자로 기억되고 싶나요?</p>
+      <p class="beats-a"><span>매출</span><span>재미</span><span>감동</span></p>
+      <p class="beats-s">3박자가 담긴 진행자</p>
+    </div>
+  </section>
+
+  <!-- 05 ALL LIVE -->
+  <section id="lives" class="lives">
+    <div class="sec-head">
+      <p class="sec-no">05</p>
+      <h2 class="sec-title" data-split>ALL LIVE</h2>
+      <p class="sec-sub">카테고리별 방송 20편 · 사진을 누르면 다시보기로 연결돼요</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="방송 카테고리">
+      <button class="tab" role="tab" aria-selected="true" data-cat="fashion">FASHION <i>8</i></button>
+      <button class="tab" role="tab" aria-selected="false" data-cat="wellness">WELLNESS <i>4</i></button>
+      <button class="tab" role="tab" aria-selected="false" data-cat="home">HOME &amp; LIVING <i>4</i></button>
+      <button class="tab" role="tab" aria-selected="false" data-cat="travel">TRAVEL &amp; LEISURE <i>4</i></button>
+      <span class="tab-ink" aria-hidden="true"></span>
+    </div>
+    <div class="cat-notes">
+      <p class="cat-note" data-cat="fashion">PUMA BODYWEAR · Calvin Klein · SATIN · DOROSIWA · 폰드패션몰 — 의류와 이너웨어부터 우양산까지</p>
+      <p class="cat-note" data-cat="wellness">에르고바디 · 오버더 · 풀무원 — EMS 레깅스, 실내 자전거, 클렌즈 주스</p>
+      <p class="cat-note" data-cat="home">LG전자 · 아에르 · 오드앵글 — 생활가전, 마스크와 샤워기, BLDC 선풍기</p>
+      <p class="cat-note" data-cat="travel">서해랑 × 평화곤돌라 · 워터밤 · KLPGA — 관광, 페스티벌, 골프</p>
+    </div>
+    <div class="grid-wrap">
+      <ul class="grid">
+        <li class="card" data-cat="fashion"><a href="https://naver.me/5remgcCC" target="_blank" rel="noopener"><img src="img/t-p3-1.webp" width="518" height="831" loading="lazy" alt="폰드패션몰 썸머 바캉스룩 라이브의 두 진행자"><span class="card-cat">FASHION</span><span class="card-views">시청 5.4만</span><b class="card-name">폰드패션몰</b><span class="card-sub">썸머 바캉스룩</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="fashion"><a href="https://naver.me/IDkOQ61K" target="_blank" rel="noopener"><img src="img/t-p3-2.webp" width="536" height="860" loading="lazy" alt="PUMA BODYWEAR 라이브 스튜디오의 이채원"><span class="card-cat">FASHION</span><span class="card-views">시청 28.1만</span><b class="card-name">PUMA BODYWEAR</b><span class="card-sub">BEST 어워즈 · 써머 에센셜 셋업</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="fashion"><div class="card-in"><img src="img/t-p3-3.webp" width="720" height="1152" loading="lazy" alt="흰 폴로 셔츠를 맞춰 입은 이채원과 공동 진행자"><span class="card-cat">FASHION</span><b class="card-name">폴로 셔츠</b></div></li>
+        <li class="card" data-cat="fashion"><a href="https://naver.me/xuFAJe3p" target="_blank" rel="noopener"><img src="img/t-p3-4.webp" width="536" height="860" loading="lazy" alt="푸스토어 라이브에서 양산을 든 이채원"><span class="card-cat">FASHION</span><b class="card-name">푸스토어</b><span class="card-sub">피에르가르뎅 우양산</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="fashion"><div class="card-in"><img src="img/t-p4-1.webp" width="720" height="1152" loading="lazy" alt="SATIN 라이브 스튜디오의 이채원과 공동 진행자"><span class="card-cat">FASHION</span><b class="card-name">SATIN</b><span class="card-sub">여성 의류</span></div></li>
+        <li class="card" data-cat="fashion"><div class="card-in"><img src="img/t-p4-2.webp" width="536" height="860" loading="lazy" alt="그래픽 티셔츠를 입은 두 진행자"><span class="card-cat">FASHION</span><b class="card-name">그래픽 티셔츠</b></div></li>
+        <li class="card" data-cat="fashion"><div class="card-in"><img src="img/t-p4-3.webp" width="536" height="860" loading="lazy" alt="DOROSIWA 이너웨어 라이브의 두 진행자"><span class="card-cat">FASHION</span><b class="card-name">DOROSIWA</b><span class="card-sub">이너웨어</span></div></li>
+        <li class="card" data-cat="fashion"><div class="card-in"><img src="img/t-p4-4.webp" width="536" height="860" loading="lazy" alt="Calvin Klein 라이브의 이채원과 공동 진행자"><span class="card-cat">FASHION</span><b class="card-name">Calvin Klein</b><span class="card-sub">데님 · 캐주얼</span></div></li>
+
+        <li class="card" data-cat="wellness"><a href="https://naver.me/5DZedeud" target="_blank" rel="noopener"><img src="img/t-p5-1.webp" width="536" height="860" loading="lazy" alt="ERGOBODY 라이브의 이채원"><span class="card-cat">WELLNESS</span><b class="card-name">ERGOBODY</b><span class="card-sub">EMS 레깅스 런칭</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="wellness"><a href="https://naver.me/xwo26Ey2" target="_blank" rel="noopener"><img src="img/t-p5-2.webp" width="494" height="793" loading="lazy" alt="오버더 바이크와 통곡의 계단 라이브의 이채원과 공동 진행자"><span class="card-cat">WELLNESS</span><span class="card-views">시청 6.3만</span><b class="card-name">OVERTHE</b><span class="card-sub">오버더바이크 &amp; 통곡의계단</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="wellness"><a href="https://naver.me/xNpbPbwd" target="_blank" rel="noopener"><img src="img/t-p5-3.webp" width="536" height="860" loading="lazy" alt="풀무원 라이브에서 음료를 든 이채원"><span class="card-cat">WELLNESS</span><span class="card-views">시청 11.7만</span><b class="card-name">풀무원</b><span class="card-sub">리셋클렌즈 48시간</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="wellness"><a href="https://naver.me/FXkLn1fJ" target="_blank" rel="noopener"><img src="img/t-p5-4.webp" width="536" height="860" loading="lazy" alt="오버더 바이크 라이브에서 하트 포즈를 취한 두 진행자"><span class="card-cat">WELLNESS</span><span class="card-views">시청 22.1만</span><b class="card-name">OVERTHE</b><span class="card-sub">나만 없어, 오버더 바이크!</span><span class="card-cta">다시보기</span></a></li>
+
+        <li class="card" data-cat="home"><a href="https://youtube.com/shorts/VBcknkIJFeo" target="_blank" rel="noopener"><img src="img/t-p6-1.webp" width="720" height="1152" loading="lazy" alt="LG전자 생활가전 라이브의 이채원과 공동 진행자"><span class="card-cat">HOME &amp; LIVING</span><b class="card-name">LG전자</b><span class="card-sub">생활가전 · YouTube</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="home"><a href="https://naver.me/GfrcFxDQ" target="_blank" rel="noopener"><img src="img/t-p6-2.webp" width="536" height="860" loading="lazy" alt="Aer 라이브에서 두 팔을 벌린 이채원"><span class="card-cat">HOME &amp; LIVING</span><b class="card-name">Aer</b><span class="card-sub">아에르 썸머특가</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="home"><a href="https://naver.me/GNJpSNdP" target="_blank" rel="noopener"><img src="img/t-p6-3.webp" width="536" height="860" loading="lazy" alt="ODDANGLE 선풍기 라이브의 이채원"><span class="card-cat">HOME &amp; LIVING</span><b class="card-name">ODDANGLE</b><span class="card-sub">여름가전 · BLDC 선풍기</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="home"><a href="https://naver.me/FCZdjF4I" target="_blank" rel="noopener"><img src="img/t-p6-4.webp" width="536" height="860" loading="lazy" alt="Aer 여행용 샤워기를 든 이채원"><span class="card-cat">HOME &amp; LIVING</span><b class="card-name">Aer</b><span class="card-sub">여행용 미니 샤워기</span><span class="card-cta">다시보기</span></a></li>
+
+        <li class="card" data-cat="travel"><a href="https://naver.me/GpCL8i4a" target="_blank" rel="noopener"><img src="img/t-p7-1.webp" width="536" height="860" loading="lazy" alt="서해랑 제부도해상케이블카와 파주임진각 평화곤돌라 라이브 화면"><span class="card-cat">TRAVEL &amp; LEISURE</span><span class="card-views">시청 7.4만</span><b class="card-name">서해랑 × 평화곤돌라</b><span class="card-sub">제부도 해상케이블카 · 파주임진각</span><span class="card-cta">다시보기</span></a></li>
+        <li class="card" data-cat="travel"><div class="card-in"><img src="img/t-p7-2.webp" width="536" height="860" loading="lazy" alt="워터밤 2026 티켓 라이브 화면"><span class="card-cat">TRAVEL &amp; LEISURE</span><b class="card-name">워터밤 2026</b><span class="card-sub">뮤직 페스티벌 티켓</span></div></li>
+        <li class="card" data-cat="travel"><div class="card-in"><img src="img/t-p7-3.webp" width="536" height="860" loading="lazy" alt="KLPGA 라이브 스튜디오의 두 진행자"><span class="card-cat">TRAVEL &amp; LEISURE</span><b class="card-name">KLPGA</b><span class="card-sub">시즌 티켓</span></div></li>
+        <li class="card" data-cat="travel"><div class="card-in"><img src="img/t-p7-4.webp" width="536" height="860" loading="lazy" alt="골프백 옆에서 포즈를 취한 이채원"><span class="card-cat">TRAVEL &amp; LEISURE</span><b class="card-name">골프 웨어</b></div></li>
+      </ul>
+      <canvas class="static" aria-hidden="true"></canvas>
+    </div>
+  </section>
+
+  <!-- 06 ON AIR LOG -->
+  <section id="log" class="log">
+    <div class="sec-head">
+      <p class="sec-no">06</p>
+      <h2 class="sec-title" data-split>ON AIR LOG</h2>
+      <p class="sec-sub">공개된 라이브 기록 28편 · 줄을 누르면 다시보기로 이동해요</p>
+    </div>
+    <div class="years" role="tablist" aria-label="연도">
+      <button class="year" role="tab" aria-selected="true" data-year="2026">2026 <i>10</i></button>
+      <button class="year" role="tab" aria-selected="false" data-year="2025">2025 <i>7</i></button>
+      <button class="year" role="tab" aria-selected="false" data-year="2024">2024 <i>7</i></button>
+      <button class="year" role="tab" aria-selected="false" data-year="2023">2023 <i>4</i></button>
+    </div>
+    <div class="board">
+      <div class="board-head" aria-hidden="true"><span>DATE</span><span>CH</span><span>BRAND</span><span>LIVE</span></div>
+      <ol class="board-rows">
+        <li class="lg-row" data-year="2026"><a href="https://youtube.com/shorts/VBcknkIJFeo" target="_blank" rel="noopener"><time>2026.08.06</time><span class="lg-plat">SHORTS</span><b class="lg-brand">LG전자</b><span class="lg-title">LG전자 LIVE · 생활가전</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1952024" target="_blank" rel="noopener"><time>2026.07.30</time><span class="lg-plat">네이버</span><b class="lg-brand">풀무원</b><span class="lg-title">리셋클렌즈 48시간 36% 할인</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1966015" target="_blank" rel="noopener"><time>2026.07.16</time><span class="lg-plat">네이버</span><b class="lg-brand">폰드패션몰</b><span class="lg-title">썸머 바캉스룩 단독 특가</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1972450" target="_blank" rel="noopener"><time>2026.07.16</time><span class="lg-plat">네이버</span><b class="lg-brand">푸스토어</b><span class="lg-title">피에르가르뎅 우양산 LIVE 특가</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1970810" target="_blank" rel="noopener"><time>2026.07.13</time><span class="lg-plat">네이버</span><b class="lg-brand">에르고바디</b><span class="lg-title">EMS 레깅스 런칭 특가</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1967887" target="_blank" rel="noopener"><time>2026.07.08</time><span class="lg-plat">네이버</span><b class="lg-brand">아에르</b><span class="lg-title">아에르 본사 LIVE · 썸머특가</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1937158" target="_blank" rel="noopener"><time>2026.06.26</time><span class="lg-plat">네이버</span><b class="lg-brand">푸마 바디웨어</b><span class="lg-title">BEST 어워즈 · 30% 쿠폰</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1941242" target="_blank" rel="noopener"><time>2026.06.10</time><span class="lg-plat">네이버</span><b class="lg-brand">아에르</b><span class="lg-title">6월의 시작, 특별한 혜택</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1920555" target="_blank" rel="noopener"><time>2026.05.18</time><span class="lg-plat">네이버</span><b class="lg-brand">오드앵글</b><span class="lg-title">여름가전 LIVE</span></a></li>
+        <li class="lg-row" data-year="2026"><a href="https://view.shoppinglive.naver.com/replays/1882279" target="_blank" rel="noopener"><time>2026.03.30</time><span class="lg-plat">네이버</span><b class="lg-brand">OVERTHE</b><span class="lg-title">벚꽃 라이딩 · 오버더바이크 &amp; 통곡의계단</span></a></li>
+        <li class="lg-row" data-year="2025"><a href="https://view.shoppinglive.naver.com/replays/1690223" target="_blank" rel="noopener"><time>2025.07.31</time><span class="lg-plat">네이버</span><b class="lg-brand">OVERTHE</b><span class="lg-title">나만 없어, 오버더 바이크!</span></a></li>
+        <li class="lg-row" data-year="2025"><a href="https://shoppinglive.kakao.com/live/41763" target="_blank" rel="noopener"><time>2025.04.20</time><span class="lg-plat">카카오</span><b class="lg-brand">몽삭</b><span class="lg-title">UP TO 79% 라이브</span></a></li>
+        <li class="lg-row" data-year="2025"><a href="https://view.shoppinglive.naver.com/replays/1618494" target="_blank" rel="noopener"><time>2025.04.18</time><span class="lg-plat">네이버</span><b class="lg-brand">OVERTHE</b><span class="lg-title">요즘 대세 실내 바이크</span></a></li>
+        <li class="lg-row" data-year="2025"><div class="lg-in"><time>2025.04</time><span class="lg-plat">더현대</span><b class="lg-brand">바쉬 ba&amp;sh</b><span class="lg-title">더현대 라이브</span></div></li>
+        <li class="lg-row" data-year="2025"><a href="https://view.shoppinglive.naver.com/replays/1603781" target="_blank" rel="noopener"><time>2025.04.03</time><span class="lg-plat">네이버</span><b class="lg-brand">서해랑 × 평화곤돌라</b><span class="lg-title">제부도해상케이블카 × 파주임진각평화곤돌라</span></a></li>
+        <li class="lg-row" data-year="2025"><a href="https://view.shoppinglive.naver.com/replays/1597461" target="_blank" rel="noopener"><time>2025.03.20</time><span class="lg-plat">네이버</span><b class="lg-brand">나트라케어</b><span class="lg-title">자매템, 모녀템! 유기농 생리대</span></a></li>
+        <li class="lg-row" data-year="2025"><a href="https://view.shoppinglive.naver.com/replays/1548989" target="_blank" rel="noopener"><time>2025.02.05</time><span class="lg-plat">네이버</span><b class="lg-brand">LG gram</b><span class="lg-title">2025 LG NEW 그램 아카데미 페스티벌</span></a></li>
+        <li class="lg-row" data-year="2024"><div class="lg-in"><time>2024.12</time><span class="lg-plat">쿠팡</span><b class="lg-brand">셀마주</b><span class="lg-title">쿠팡라이브 단독 추천</span></div></li>
+        <li class="lg-row" data-year="2024"><a href="https://view.shoppinglive.naver.com/replays/1475639" target="_blank" rel="noopener"><time>2024.10.23</time><span class="lg-plat">네이버</span><b class="lg-brand">네츄럴굿띵스</b><span class="lg-title">속편한 생생효소 라이브</span></a></li>
+        <li class="lg-row" data-year="2024"><a href="https://view.shoppinglive.naver.com/replays/1449847" target="_blank" rel="noopener"><time>2024.10.10</time><span class="lg-plat">네이버</span><b class="lg-brand">NS 프로틴</b><span class="lg-title">프로틴쉐이크 신제품 출시</span></a></li>
+        <li class="lg-row" data-year="2024"><a href="https://view.shoppinglive.naver.com/replays/1453755" target="_blank" rel="noopener"><time>2024.10.02</time><span class="lg-plat">네이버</span><b class="lg-brand">서해랑 × 평화곤돌라</b><span class="lg-title">제부도해상케이블카 × 파주임진각평화곤돌라</span></a></li>
+        <li class="lg-row" data-year="2024"><a href="https://shoppinglive.kakao.com/live/31352" target="_blank" rel="noopener"><time>2024.09.13</time><span class="lg-plat">카카오</span><b class="lg-brand">베이스틴</b><span class="lg-title">식사대용 식물성 단백질</span></a></li>
+        <li class="lg-row" data-year="2024"><a href="https://view.shoppinglive.naver.com/replays/1427204" target="_blank" rel="noopener"><time>2024.08.26</time><span class="lg-plat">네이버</span><b class="lg-brand">리셀러 온리퍼펙션</b><span class="lg-title">여름마저 시원하게! 줄기세포화장품</span></a></li>
+        <li class="lg-row" data-year="2024"><a href="https://view.shoppinglive.naver.com/replays/1364033" target="_blank" rel="noopener"><time>2024.06.14</time><span class="lg-plat">네이버</span><b class="lg-brand">정관장</b><span class="lg-title">건강을 선물하는 정관장 라이브 특가</span></a></li>
+        <li class="lg-row" data-year="2023"><a href="https://view.shoppinglive.naver.com/replays/1205160" target="_blank" rel="noopener"><time>2023.12.21</time><span class="lg-plat">네이버</span><b class="lg-brand">리셀러 온리퍼펙션</b><span class="lg-title">6년 연속 1위 줄기세포화장품</span></a></li>
+        <li class="lg-row" data-year="2023"><a href="https://view.shoppinglive.naver.com/replays/1160938" target="_blank" rel="noopener"><time>2023.11.21</time><span class="lg-plat">네이버</span><b class="lg-brand">LG gram</b><span class="lg-title">디지털어워즈 · 高3 끝에 GRAM 온다!</span></a></li>
+        <li class="lg-row" data-year="2023"><a href="https://view.shoppinglive.naver.com/replays/1116794" target="_blank" rel="noopener"><time>2023.10.10</time><span class="lg-plat">네이버</span><b class="lg-brand">LG gram</b><span class="lg-title">그램데이 · 가을맞이 특가</span></a></li>
+        <li class="lg-row" data-year="2023"><div class="lg-in"><time>2023</time><span class="lg-plat">—</span><b class="lg-brand">삼성전자</b><span class="lg-title">갤럭시 Z 폴드5 · 플립5 신제품 런칭 방송</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 07 HISTORY -->
+  <section id="history" class="history">
+    <div class="sec-head">
+      <p class="sec-no">07</p>
+      <h2 class="sec-title" data-split>HISTORY</h2>
+      <p class="sec-sub">유통 전공 · 커머스 마케팅 · 라이브커머스</p>
+    </div>
+    <ol class="route" aria-label="커리어 흐름">
+      <li>유통 전공</li><li>홈쇼핑 마케팅</li><li>광고 마케팅</li><li>라이브커머스</li><li>갤럭시 큐레이터</li><li>쇼호스트</li>
+    </ol>
+    <div class="history-body">
+      <ol class="timeline">
+        <li class="tl tl--now">
+          <time>2023 — 現</time>
+          <b>라이브커머스 쇼호스트</b>
+          <span>LG gram 전속 · 롯데하이마트 하트라이브 전속 · 트로이아르케 고정</span>
+        </li>
+        <li class="tl">
+          <time>2023.04 — 2023.11</time>
+          <b>삼성전자 갤럭시 큐레이터</b>
+          <span>IT · 모바일</span>
+        </li>
+        <li class="tl">
+          <time>2022.10 — 2023.02</time>
+          <b>휴먼웍스</b>
+          <span>모바일 라이브커머스 · IT · 생활용품 전문</span>
+        </li>
+        <li class="tl">
+          <time>2020.09 — 2022.04</time>
+          <b>YD컴퍼니</b>
+          <span>모바일 광고마케팅 · 주임</span>
+        </li>
+        <li class="tl">
+          <time>2019.10 — 2020.01</time>
+          <b>W쇼핑</b>
+          <span>모바일 홈쇼핑 마케팅 · 대학교 인턴십</span>
+        </li>
+        <li class="tl">
+          <time>2016.03 — 2021.02</time>
+          <b>남서울대학교 국제유통학과</b>
+          <span>졸업</span>
+        </li>
+        <i class="tl-line" aria-hidden="true"></i>
+      </ol>
+      <div class="awards">
+        <h3 class="awards-title">AWARDS &amp; MODEL</h3>
+        <ul class="badges">
+          <li class="badge badge--award"><span class="badge-year">2022</span><b>미스인터콘티넨탈</b><span>수도권 스타상</span></li>
+          <li class="badge badge--award"><span class="badge-year">2023</span><b>베스트퀸코리아어워즈</b><span>인플루언서상</span></li>
+          <li class="badge badge--model"><span class="badge-year">2022 · MODEL</span><b>쥬빈뜨</b><span>비타스틱 뷰티모델</span></li>
+          <li class="badge badge--model"><span class="badge-year">2023 · MODEL</span><b>바바요</b><span>스틱콜라겐 뷰티모델</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 FITTING INFO -->
+  <section id="fitting" class="fitting">
+    <div class="sec-head">
+      <p class="sec-no">08</p>
+      <h2 class="sec-title" data-split>FITTING INFO</h2>
+      <p class="sec-sub">패션 방송 피팅 정보</p>
+    </div>
+    <div class="fit">
+      <figure class="fit-figure">
+        <div class="fit-grid" aria-hidden="true"></div>
+        <img class="fit-mono" src="img/hero-cut-m.webp" width="594" height="1300" loading="lazy" alt="">
+        <div class="fit-color"><img src="img/hero-cut-m.webp" width="594" height="1300" loading="lazy" alt="전신 피팅 사진"></div>
+        <i class="fit-scan" aria-hidden="true"></i>
+        <div class="fit-ruler" aria-hidden="true"><b class="fit-ruler-val"><span data-count="168">168</span>cm</b></div>
+      </figure>
+      <dl class="spec">
+        <div class="spec-row" data-part="height"><dt>키</dt><dd><b data-count="168">168</b><small>cm</small></dd></div>
+        <div class="spec-row" data-part="weight"><dt>몸무게</dt><dd><b data-count="52">52</b><small>kg</small></dd></div>
+        <div class="spec-row" data-part="top"><dt>상의</dt><dd><b>44반–55</b></dd></div>
+        <div class="spec-row" data-part="bottom"><dt>하의</dt><dd><b data-count="25">25</b><small>inch</small></dd></div>
+        <div class="spec-row" data-part="shoes"><dt>신발</dt><dd><b>235–240</b><small>mm</small></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact">
+    <div class="contact-marquee" aria-hidden="true"><p><span>SEE YOU ON AIR</span><span>다음 방송에서 만나요</span><span>SEE YOU ON AIR</span><span>다음 방송에서 만나요</span></p></div>
+    <div class="contact-in">
+      <div class="contact-copy">
+        <p class="contact-kicker"><span class="live-pill"><i></i>LIVE</span> 섭외 문의</p>
+        <h2 class="contact-title"><span>매출로 이어지는 진행,</span> <span>브랜드를 빛내는 소통</span></h2>
+        <p class="contact-slogan">진행이 필요한 순간, <b>채</b>워드릴게요. <b>원</b>하는 모든 것!</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-head"><b>쇼호스트 이채원</b><span>LIVE COMMERCE SHOW HOST</span></div>
+        <ul class="ticket-rows">
+          <li><a class="ticket-row" data-tel href="#contact"><span>전화</span><b data-tel-text>번호 보기</b></a></li>
+          <li><a class="ticket-row" href="mailto:yh15325@naver.com" data-copy="yh15325@naver.com"><span>이메일</span><b>yh15325@naver.com</b></a></li>
+          <li><a class="ticket-row" href="https://www.instagram.com/c._.1ee/" target="_blank" rel="noopener"><span>인스타그램</span><b>@c._.1ee</b></a></li>
+          <li><a class="ticket-row" href="https://www.youtube.com/@chea_1ee" target="_blank" rel="noopener"><span>유튜브</span><b>@chea_1ee</b></a></li>
+        </ul>
+        <a class="ticket-cta" href="mailto:yh15325@naver.com?subject=%5B%EC%84%AD%EC%99%B8%20%EB%AC%B8%EC%9D%98%5D%20%EC%87%BC%ED%98%B8%EC%8A%A4%ED%8A%B8%20%EC%9D%B4%EC%B1%84%EC%9B%90">섭외 문의하기</a>
+      </div>
+    </div>
+    <canvas class="confetti" aria-hidden="true"></canvas>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p>© 2026 이채원 · LIVE COMMERCE SHOW HOST</p>
+  <p class="foot-url">moshim.kr/chaewon</p>
+</footer>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/SplitText.min.js"></script>
+<script src="vendor/CustomEase.min.js"></script>
+<script src="vendor/DrawSVGPlugin.min.js"></script>
+<script src="vendor/MorphSVGPlugin.min.js"></script>
+<script src="vendor/ScrambleTextPlugin.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

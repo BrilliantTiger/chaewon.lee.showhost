@@ -1,0 +1,5 @@
+.DS_Store
+# original photos, the show-host PDF and build intermediates stay local
+/source/
+node_modules/
+__pycache__/
