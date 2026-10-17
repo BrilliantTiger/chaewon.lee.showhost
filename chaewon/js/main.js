@@ -94,6 +94,7 @@ if (fine && !RM) {
 /* ---------- section titles ---------- */
 
 function splitTitles() {
+  if (RM) return;   // reduced motion: titles are simply there
   $$('.sec-title[data-split]').forEach((el) => {
     const split = new SplitText(el, { type: 'words,chars', wordsClass: 'w', charsClass: 'ch' });
     gsap.set(el, { perspective: 600 });
