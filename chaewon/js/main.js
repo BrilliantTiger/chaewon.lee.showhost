@@ -113,27 +113,27 @@ function splitTitles() {
   });
 }
 
-/* ---------- ON AIR ---------- */
+/* ---------- HERO ---------- */
 
-const onair = $('#onair');
-const stage = $('.stage', onair);
-const person = $('.person', onair);
-const shadow = $('.person-shadow', onair);
-const typeRows = $$('.stage-row', onair);
-const tags = $$('.tag', onair);
-const phone = $('.phone', onair);
-const statement = $('.statement', onair);
-const heartsCanvas = $('.hearts', onair);
+const heroSec = $('#hero');
+const stage = $('.stage', heroSec);
+const person = $('.person', heroSec);
+const shadow = $('.person-shadow', heroSec);
+const typeRows = $$('.stage-row', heroSec);
+const tags = $$('.tag', heroSec);
+const phone = $('.phone', heroSec);
+const statement = $('.statement', heroSec);
+const heartsCanvas = $('.hearts', heroSec);
 const hearts = RM ? null : new Hearts(heartsCanvas);
 let wall = null;
-if (!RM) { try { wall = new Wall($('.stage-gl', onair)); } catch { wall = null; } }
+if (!RM) { try { wall = new Wall($('.stage-gl', heroSec)); } catch { wall = null; } }
 
 stage.dataset.cursor = '♥ TAP';
-let onairStep = 0;
+let heroStep = 0;
 
 function phoneRect() {
-  const W = onair.clientWidth;
-  const H = onair.clientHeight;
+  const W = heroSec.clientWidth;
+  const H = heroSec.clientHeight;
   const ratio = 9 / 19.5;
   let ph;
   let cx;
@@ -162,18 +162,18 @@ function decorate() {
   trust.insertAdjacentHTML('beforeend', '<svg class="scribble" viewBox="0 0 142 100" aria-hidden="true"><path d="M6,96 C30,86 50,104 74,92 S116,86 138,95"/></svg>');
 }
 
-let onairTl = null;
-function buildOnair() {
-  onair.classList.toggle('is-stacked', stacked());
+let heroTl = null;
+function buildPhone() {
+  heroSec.classList.toggle('is-stacked', stacked());
   const R = phoneRect();
   const s = R.h / R.H;
   const insetX = Math.max(0, (R.W - R.w / s) / 2);
-  const progress = onairTl ? onairTl.progress() : 0;
-  if (onairTl) onairTl.kill();
+  const progress = heroTl ? heroTl.progress() : 0;
+  if (heroTl) heroTl.kill();
   gsap.set([stage, phone, statement], { clearProps: 'all' });
   Object.entries({ '--px': R.x, '--py': R.y, '--pw': R.w, '--ph': R.h, '--pr': R.r }).forEach(([k, v]) => phone.style.setProperty(k, `${v}px`));
 
-  const heroOut = [...$$('.hero-eyebrow > *', onair), $('.hero-name', onair), ...$$('.hero-tagline span', onair)];
+  const heroOut = [...$$('.hero-eyebrow > *', heroSec), $('.hero-name', heroSec), ...$$('.hero-tagline span', heroSec)];
   const ui = [$('.phone-top', phone), $('.phone-side', phone), $('.phone-card', phone)];
   const hl = $$('.hl', statement);
   const energyChars = $$('.w-energy .sch', statement);
@@ -200,24 +200,24 @@ function buildOnair() {
     .fromTo(sparks, { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.3, stagger: 0.05, ease: 'power2.out' }, 1.62)
     .fromTo(wave, { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.55, ease: 'power2.inOut' }, 1.75)
     .from($$('.statement-cats li', statement), { autoAlpha: 0, y: 14, scale: 0.85, duration: 0.45, stagger: 0.06, ease: 'back.out(2.2)' }, 1.8);
-  onairTl = tl;
+  heroTl = tl;
   tl.progress(progress);
   phone.classList.toggle('is-on', progress > 0.5);
 }
 
-function onairGo(next) {
-  onairStep = next;
+function heroGo(next) {
+  heroStep = next;
   return new Promise((res) => {
     if (next === 1) {
       phone.classList.add('is-on');
-      onairTl.timeScale(1).eventCallback('onComplete', null).play();
+      heroTl.timeScale(1).eventCallback('onComplete', null).play();
       gsap.delayedCall(1.45, res);   // the stream is up and the line is in: the next gesture may move on
       wall?.ping(0.5, 0.5);
       const R = phoneRect();
       setTimeout(() => hearts?.burst(R.x + R.w - 28, R.y + R.h - 120, 14, 0.8), 1050);
     } else {
       phone.classList.remove('is-on');
-      onairTl.timeScale(1.5).eventCallback('onReverseComplete', res).reverse();
+      heroTl.timeScale(1.5).eventCallback('onReverseComplete', res).reverse();
     }
   });
 }
@@ -231,22 +231,22 @@ if (!RM) {
   const shX = gsap.quickTo(shadow, 'x', { duration: 1.4, ease: 'power3' });
   gsap.set([person, shadow], { xPercent: -50, left: '50%' });
   gsap.set(person, { transformPerspective: 1200 });
-  onair.addEventListener('pointermove', (e) => {
-    const r = onair.getBoundingClientRect();
+  heroSec.addEventListener('pointermove', (e) => {
+    const r = heroSec.getBoundingClientRect();
     const mx = (e.clientX - r.left) / r.width;
     const my = (e.clientY - r.top) / r.height;
     wall?.point(mx, my);
     if (wall) wall.heat = 1;
-    if (onairStep !== 0) return;
+    if (heroStep !== 0) return;
     rowX.forEach((f, i) => f((mx - 0.5) * (i ? 46 : -46)));
     rowY.forEach((f) => f((my - 0.5) * -18));
     perX((mx - 0.5) * 16);
     perR((mx - 0.5) * 6);
     shX((mx - 0.5) * 6);
   });
-  onair.addEventListener('pointerleave', () => { if (wall) wall.heat = 0; });
+  heroSec.addEventListener('pointerleave', () => { if (wall) wall.heat = 0; });
   stage.addEventListener('click', (e) => {
-    const r = onair.getBoundingClientRect();
+    const r = heroSec.getBoundingClientRect();
     hearts.burst(e.clientX - r.left, e.clientY - r.top, 18);
     wall?.ping((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
   });
@@ -254,7 +254,7 @@ if (!RM) {
   const countEl = $('[data-hearts-count]');
   $('.phone-heart').addEventListener('click', (e) => {
     e.stopPropagation();
-    const r = onair.getBoundingClientRect();
+    const r = heroSec.getBoundingClientRect();
     const b = e.currentTarget.getBoundingClientRect();
     hearts.burst(b.left + b.width / 2 - r.left, b.top - r.top, 12, 0.7);
     count += 1;
@@ -262,20 +262,20 @@ if (!RM) {
     gsap.fromTo(e.currentTarget, { scale: 0.85 }, { scale: 1, duration: 0.5, ease: 'elastic.out(1.2, .4)' });
   });
   const ambient = () => {
-    if (document.hidden || window.scrollY > onair.offsetHeight) return;
-    if (onairStep === 0) {
+    if (document.hidden || window.scrollY > heroSec.offsetHeight) return;
+    if (heroStep === 0) {
       // phones keep the hero clear: the category tags sit where the stream would rise
-      if (!stacked()) hearts.float(onair.clientWidth * (0.84 + Math.random() * 0.08), onair.clientHeight * 0.94, 0.9);
+      if (!stacked()) hearts.float(heroSec.clientWidth * (0.84 + Math.random() * 0.08), heroSec.clientHeight * 0.94, 0.9);
     } else {
       const b = $('.phone-heart').getBoundingClientRect();
-      const r = onair.getBoundingClientRect();
+      const r = heroSec.getBoundingClientRect();
       if (b.width) hearts.float(b.left + b.width / 2 - r.left, b.top - r.top, 0.7);
     }
   };
   setInterval(ambient, 650);
 }
 
-/* ---------- BEST ON AIR ---------- */
+/* ---------- BEST LIVE ---------- */
 
 const best = $('#best');
 const bestItems = $$('.best-item', best);
@@ -359,7 +359,7 @@ function showBest(i, prev, dir) {
   });
 }
 
-/* ---------- 01 DATA ---------- */
+/* ---------- 01 LIVE DATA ---------- */
 
 function initData() {
   $$('.odo').forEach((el) => {
@@ -565,7 +565,7 @@ function initStyle() {
   ScrollTrigger.create({ trigger: '.beats', start: 'top 90%', end: 'bottom top', onToggle: (self) => (self.isActive ? beat.play() : beat.pause()) });
 }
 
-/* ---------- 06 ON AIR LOG ---------- */
+/* ---------- 06 LIVE LOG ---------- */
 
 let currentYear = '2026';
 function selectYear(year, animate = true) {
@@ -859,22 +859,22 @@ function imgReady(img) {
 }
 
 function heroIntro() {
-  const split = new SplitText($('.hero-ko', onair), { type: 'words,chars', wordsClass: 'hw', charsClass: 'hch' });
+  const split = new SplitText($('.hero-ko', heroSec), { type: 'words,chars', wordsClass: 'hw', charsClass: 'hch' });
   const tl = gsap.timeline();
-  gsap.set(onair, { perspective: 1000 });
+  gsap.set(heroSec, { perspective: 1000 });
   tl.from(typeRows, { yPercent: 70, scaleY: 1.5, autoAlpha: 0, duration: 1.3, stagger: 0.12, ease: 'expo.out' }, 0)
     .from(person, { y: '7%', scale: 1.05, autoAlpha: 0, duration: 1.5, ease: 'expo.out' }, 0.1)
     .from(shadow, { autoAlpha: 0, duration: 1.2, ease: 'power2.out' }, 0.5)
-    .from($$('.hero-eyebrow > *', onair), { autoAlpha: 0, y: -14, duration: 0.6, stagger: 0.08, ease: 'power3.out' }, 0.5)
+    .from($$('.hero-eyebrow > *', heroSec), { autoAlpha: 0, y: -14, duration: 0.6, stagger: 0.08, ease: 'power3.out' }, 0.5)
     .from(split.chars, { yPercent: 110, rotateX: -90, autoAlpha: 0, duration: 0.9, stagger: 0.05, ease: 'expo.out' }, 0.55)
-    .from($('.hero-en', onair), { autoAlpha: 0, letterSpacing: '1em', duration: 1.1, ease: 'expo.out' }, 0.75)
-    .from($$('.hero-tagline span', onair), { autoAlpha: 0, x: 30, duration: 0.8, stagger: 0.12, ease: 'expo.out' }, 0.8)
+    .from($('.hero-en', heroSec), { autoAlpha: 0, letterSpacing: '1em', duration: 1.1, ease: 'expo.out' }, 0.75)
+    .from($$('.hero-tagline span', heroSec), { autoAlpha: 0, x: 30, duration: 0.8, stagger: 0.12, ease: 'expo.out' }, 0.8)
     .from(tags, { scale: 0, autoAlpha: 0, duration: 0.6, stagger: 0.1, ease: 'back.out(2.4)' }, 1.0)
-    .from($$('.viewfinder i', onair), { scale: 1.6, autoAlpha: 0, duration: 0.7, stagger: 0.05, ease: 'expo.out' }, 0.3)
+    .from($$('.viewfinder i', heroSec), { scale: 1.6, autoAlpha: 0, duration: 0.7, stagger: 0.05, ease: 'expo.out' }, 0.3)
     .from('.scroll-cue', { autoAlpha: 0, y: 10, duration: 0.6 }, 1.3)
     .add(() => {
       wall?.ping(0.5, 0.55);
-      hearts?.burst(onair.clientWidth / 2, onair.clientHeight * 0.75, 22, 1);
+      hearts?.burst(heroSec.clientWidth / 2, heroSec.clientHeight * 0.75, 22, 1);
     }, 0.6);
   return tl;
 }
@@ -888,7 +888,7 @@ async function intro() {
   loader.addEventListener('click', () => { skip = true; gsap.globalTimeline.timeScale(3); }, { once: true });
   const lineTw = gsap.to('.loader-line i', { scaleX: 0.85, duration: 2.4, ease: 'power2.out' });
   await Promise.race([
-    Promise.all([imgReady($('.person-cut', onair)), imgReady($('.person-shadow', onair)), document.fonts.ready]),
+    Promise.all([imgReady($('.person-cut', heroSec)), imgReady($('.person-shadow', heroSec)), document.fonts.ready]),
     wait(5000),
   ]);
   lineTw.kill();
@@ -901,7 +901,7 @@ async function intro() {
       .to(ring, { drawSVG: `${(k + 1) * 33.4}%`, duration: 0.24, ease: 'power2.out' }, 0)
       .to(num, { scale: 0.7, autoAlpha: 0, duration: 0.12, ease: 'power2.in' }, 0.28);
   }
-  num.textContent = 'ON AIR';
+  num.textContent = 'LIVE';
   num.classList.add('is-word');
   // the countdown ring fills, turns into a heart, and the heart opens onto the stage
   const heart = $('.loader-heart', loader);
@@ -919,21 +919,21 @@ async function intro() {
   await gsap.to(heart, { scale: 26, duration: 0.6, ease: 'expo.in', transformOrigin: '50% 58%' });
   gsap.set(loader, { backgroundColor: 'transparent' });
   if (skip) gsap.globalTimeline.timeScale(1);
-  const hero = heroIntro();
+  const heroAnim = heroIntro();
   await gsap.to(heart, { autoAlpha: 0, duration: 0.5, ease: 'power2.out' });
   loader.remove();
-  await hero;
+  await heroAnim;
 }
 
 /* ---------- boot ---------- */
 
-const onairScene = {
-  el: onair, steps: 2,
-  go: (next) => onairGo(next),
+const heroScene = {
+  el: heroSec, steps: 2,
+  go: (next) => heroGo(next),
   enter: (step) => {
-    if (step !== onairStep) {
-      onairStep = step;
-      onairTl.progress(step);
+    if (step !== heroStep) {
+      heroStep = step;
+      heroTl.progress(step);
       phone.classList.toggle('is-on', step === 1);
     }
   },
@@ -958,22 +958,22 @@ async function boot() {
   splitTitles();
   if (!RM) {
     decorate();
-    buildOnair();
+    buildPhone();
     initMarquees();
     let rz;
     addEventListener('resize', () => {
       clearTimeout(rz);
-      rz = setTimeout(() => { buildOnair(); onairTl.progress(onairStep); ScrollTrigger.refresh(); }, 160);
+      rz = setTimeout(() => { buildPhone(); heroTl.progress(heroStep); ScrollTrigger.refresh(); }, 160);
     });
   }
   await intro();
   if (scenes) {
-    scenes.add(onairScene);
+    scenes.add(heroScene);
     scenes.add(bestScene);
-    if (window.scrollY < 2) scenes.lock(onairScene, 0);
+    if (window.scrollY < 2) scenes.lock(heroScene, 0);
   }
   ScrollTrigger.refresh();
-  window.__show = { scenes, onairScene, bestScene };
+  window.__show = { scenes, heroScene, bestScene };
 }
 
 boot();

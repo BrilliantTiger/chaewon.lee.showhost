@@ -1,5 +1,5 @@
 // Two small WebGL scenes: the living studio wall behind the hero, and the
-// liquid-cut gallery in BEST ON AIR. Both fall back to CSS when WebGL is missing.
+// liquid-cut gallery in BEST LIVE. Both fall back to CSS when WebGL is missing.
 
 const VERT = `attribute vec2 p;varying vec2 vUv;void main(){vUv=p*.5+.5;gl_Position=vec4(p,0.,1.);}`;
 

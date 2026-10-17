@@ -120,9 +120,9 @@ main { overflow-x: clip; }
 .cursor.is-label .cursor-ring b { opacity: 1; }
 .cursor.is-down .cursor-ring { scale: .85; }
 
-/* ---------- ON AIR (hero → phone) ---------- */
+/* ---------- HERO (shot → phone stream) ---------- */
 
-.onair {
+.hero {
   position: relative; height: 100vh; height: 100dvh; min-height: 520px;
   overflow: hidden; background: var(--pink); color: #fff;
   isolation: isolate;
@@ -332,7 +332,7 @@ main { overflow-x: clip; }
 .brandwall-track li:nth-child(3n + 1) { color: var(--slate-deep); -webkit-text-stroke: 0; }
 .brandwall-track li::after { content: '✦'; display: inline-block; margin-left: .9em; font-size: .4em; vertical-align: middle; color: var(--pink-hot); -webkit-text-stroke: 0; }
 
-/* ---------- 02 BEST ON AIR ---------- */
+/* ---------- 02 BEST LIVE ---------- */
 
 .best {
   position: relative; height: 100vh; height: 100dvh; min-height: 560px; overflow: hidden;
@@ -593,7 +593,7 @@ main { overflow-x: clip; }
 .beats-a span::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--pink-hot); opacity: 0; }
 .beats-s { margin: 18px 0 0; font-size: clamp(20px, 2.2vw, 32px); font-weight: 900; letter-spacing: -.04em; color: var(--slate-deep); }
 
-/* ---------- 06 ON AIR LOG ---------- */
+/* ---------- 06 LIVE LOG ---------- */
 
 .log { position: relative; padding: clamp(96px, 16vh, 180px) var(--pad); background: var(--blush); }
 .years { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 36px; }
@@ -620,11 +620,11 @@ main { overflow-x: clip; }
 
 /* ---------- stacked layouts (phones and portrait tablets) ---------- */
 
-.onair.is-stacked .statement { left: var(--pad); right: var(--pad); top: auto; bottom: calc(var(--pad) + 10px); transform: none; }
-.onair.is-stacked .statement-kicker { margin-bottom: 10px; font-size: 14px; }
-.onair.is-stacked .statement-title { font-size: clamp(26px, 6.8vw, 44px); }
-.onair.is-stacked .statement-cats { margin-top: 16px; gap: 6px; }
-.onair.is-stacked .statement-cats li { padding: 6px 10px; font-size: 10px; }
+.hero.is-stacked .statement { left: var(--pad); right: var(--pad); top: auto; bottom: calc(var(--pad) + 10px); transform: none; }
+.hero.is-stacked .statement-kicker { margin-bottom: 10px; font-size: 14px; }
+.hero.is-stacked .statement-title { font-size: clamp(26px, 6.8vw, 44px); }
+.hero.is-stacked .statement-cats { margin-top: 16px; gap: 6px; }
+.hero.is-stacked .statement-cats li { padding: 6px 10px; font-size: 10px; }
 
 @media (max-width: 699px), (max-aspect-ratio: 9/10) {
   .best-head { top: calc(var(--pad) + 4px); }
@@ -677,7 +677,7 @@ main { overflow-x: clip; }
 
 /* ---------- reduced motion / no JS: everything static and in flow ---------- */
 
-.rm .onair, .no-js .onair { height: auto; min-height: 0; display: flex; flex-direction: column; }
+.rm .hero, .no-js .hero { height: auto; min-height: 0; display: flex; flex-direction: column; }
 .rm .stage, .no-js .stage { position: relative; height: 100vh; height: 100svh; min-height: 560px; }
 .rm .phone, .no-js .phone, .rm .scroll-cue, .no-js .scroll-cue, .rm .hearts, .no-js .hearts { display: none; }
 .rm .hero-copy, .no-js .hero-copy { position: absolute; inset: 0; height: 100vh; height: 100svh; min-height: 560px; }
