@@ -14,8 +14,11 @@ export class Scenes {
     this.busy = false;
     this.nav = false;
     this.prevY = window.scrollY;
-    this.wheel = { last: 0, abs: 0, acc: 0, dir: 0, used: false };
+    this.wheel = { last: 0, v: 0, peak: 0, decayed: false, acc: 0, dir: 0, used: false };
     this.touch = { y: null, used: false };
+    this.input = 'wheel';
+    this.touchHold = false;   // after a touch release the finger must not fight the glide
+    this.frozen = false;      // set while the intro plays: no scrolling under the loader
     this.onLock = null;
 
     this.onWheel = this.onWheel.bind(this);
@@ -32,6 +35,7 @@ export class Scenes {
     window.addEventListener('touchcancel', this.onTouchEnd, { passive: true });
     window.addEventListener('keydown', this.onKey);
     window.addEventListener('scroll', this.onScroll, { passive: true });
+    document.addEventListener('focusin', (e) => this.onFocus(e));
     lenis.on('scroll', () => this.check(window.scrollY));
     window.addEventListener('resize', () => {
       if (this.active) window.scrollTo(0, this.anchor(this.active));
@@ -52,6 +56,12 @@ export class Scenes {
     if (this.active) return;
     if (this.nav) { this.prevY = y; return; }
     const dir = Math.sign(y - this.prevY);
+    // a native jump (Home/End, scrollTo, a resize) lands where it lands; only real scrolling gets caught
+    if (this.lenis.isScrolling !== 'smooth' && Math.abs(y - this.prevY) > window.innerHeight * 1.5) {
+      this.prevY = y;
+      this.settle(dir, y <= 1 ? 0 : null);
+      return;
+    }
     if (dir) {
       let hit = null;
       let best = Infinity;
@@ -94,31 +104,38 @@ export class Scenes {
     if (glide && dir) {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const to = dir > 0 ? a + s.el.offsetHeight : a - window.innerHeight;
-      // the glide stays catchable: a fling that keeps going still stops at the next scene
-      this.navigate(Math.max(0, Math.min(max, to)), 1.05, dir, false);
+      // wheel: the glide stays catchable, so a fling that keeps going still stops at the next scene.
+      // touch: the glide is locked and the rest of the swipe is held, or native scrolling cancels it.
+      const viaTouch = this.input === 'touch';
+      this.touchHold = viaTouch;
+      this.navigate(Math.max(0, Math.min(max, to)), 1.05, dir, false, null, viaTouch);
     }
   }
 
   /** Programmatic scroll. With `guard` (anchor links) it never gets caught on the way. */
-  navigate(y, duration = 1.3, dir = 0, guard = true) {
+  navigate(y, duration = 1.3, dir = 0, guard = true, landStep = null, lock = false) {
     this.nav = guard;
     clearTimeout(this.navTimer);
     const done = () => {
       clearTimeout(this.navTimer);
       this.nav = false;
+      this.touchHold = false;
       this.prevY = window.scrollY;
-      this.settle(dir);
+      this.settle(dir, landStep);
     };
     this.navTimer = setTimeout(done, duration * 1000 + 200);
-    this.lenis.scrollTo(y, { duration, easing: easeOut, force: true, onComplete: done });
+    this.lenis.scrollTo(y, { duration, easing: easeOut, force: true, lock, onComplete: done });
   }
 
-  /** After a glide that ends exactly on a scene, hold it there. */
-  settle(dir) {
+  /** After a glide or a jump that ends exactly on a scene, hold it there. */
+  settle(dir, landStep = null) {
     if (this.active) return;
     const y = window.scrollY;
     for (const s of this.list) {
-      if (Math.abs(this.anchor(s) - y) < 2) { this.lock(s, dir < 0 ? s.steps - 1 : 0); return; }
+      if (Math.abs(this.anchor(s) - y) < 2) {
+        this.lock(s, landStep != null ? landStep : dir < 0 ? s.steps - 1 : 0);
+        return;
+      }
     }
   }
 
@@ -147,41 +164,68 @@ export class Scenes {
     this.busy = true;
     const prev = this.step;
     this.step = next;
-    try { await s.go(next, prev, dir); } finally { this.busy = false; }
+    // a step that never reports back must not freeze the page
+    try { await Promise.race([s.go(next, prev, dir), new Promise((r) => setTimeout(r, 3000))]); } finally { this.busy = false; }
+  }
+
+  freeze(on) {
+    this.frozen = on;
+    document.documentElement.classList.toggle('is-locked', on || !!this.active);
+    if (on) this.lenis.stop();
+    else if (!this.active) this.lenis.start();
   }
 
   onWheel(e) {
-    const now = performance.now();
+    if (this.frozen) { if (e.cancelable) e.preventDefault(); return; }
+    // event time, not handler time: a busy frame must not turn a momentum tail into a new swipe
+    const now = e.timeStamp || performance.now();
     let dy = e.deltaY;
     if (e.deltaMode === 1) dy *= 32;
     else if (e.deltaMode === 2) dy *= window.innerHeight;
     const abs = Math.abs(dy);
     const w = this.wheel;
     const gap = now - w.last;
-    const fresh = gap > 180 || (abs > 30 && abs > w.abs * 2.2) || (abs > 8 && Math.sign(dy) !== w.dir && w.dir !== 0);
+    // Speed per event, with the interval held between one and three frames: events coalesced after
+    // a stall carry a big delta over a long gap, and a queued burst arrives with tiny gaps.
+    const v = abs / Math.min(50, Math.max(16, gap));
+    // A new gesture is a pause, a turn, or a push that comes back after the momentum tail had
+    // decayed. A swipe's own run-up (speed still climbing to its peak) is never a new gesture.
+    const fresh = gap > 180
+      || (abs > 8 && Math.sign(dy) !== w.dir && w.dir !== 0)
+      || (w.decayed && v > w.v * 1.6 && v > 1.2);
     w.last = now;
-    w.abs = abs;
-    if (fresh) { w.acc = 0; w.used = false; w.dir = Math.sign(dy); }
+    if (fresh) {
+      w.peak = v; w.decayed = false;
+      w.acc = 0; w.used = false; w.dir = Math.sign(dy);
+    } else {
+      w.peak = Math.max(w.peak, v);
+      if (v < w.peak * 0.5) w.decayed = true;
+    }
+    w.v = v;
     if (!this.active) {
       if (this.nav && fresh) { clearTimeout(this.navTimer); this.nav = false; this.prevY = window.scrollY; }
       return;
     }
     if (e.ctrlKey) return;
     if (e.cancelable) e.preventDefault();
+    this.input = 'wheel';
     if (Math.abs(e.deltaX) > abs) return;
     if (this.busy || w.used) return;
     w.acc += dy;
-    if (Math.abs(w.acc) > 26) { w.used = true; this.go(Math.sign(w.acc)); }
+    // a step needs a real push: enough distance, and at least some speed (resting fingers drift slowly)
+    if (Math.abs(w.acc) > 30 && w.peak > 0.35) { w.used = true; this.go(Math.sign(w.acc)); }
   }
 
   onTouchStart(e) {
     this.touch.y = e.touches[0].clientY;
     this.touch.used = false;
-    if (this.nav && !this.active) { clearTimeout(this.navTimer); this.nav = false; this.prevY = window.scrollY; }
+    if (this.nav && !this.active && !this.touchHold) { clearTimeout(this.navTimer); this.nav = false; this.prevY = window.scrollY; }
   }
 
   onTouchMove(e) {
+    if (this.frozen || this.touchHold) { if (e.cancelable) e.preventDefault(); return; }
     if (!this.active) return;
+    this.input = 'touch';
     if (e.cancelable) e.preventDefault();
     const t = this.touch;
     if (t.y == null || t.used || this.busy) return;
@@ -194,17 +238,40 @@ export class Scenes {
   }
 
   onKey(e) {
-    if (!this.active || e.altKey || e.metaKey || e.ctrlKey) return;
+    if (e.altKey || e.metaKey || e.ctrlKey) return;
     const tag = (e.target && e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
     const k = e.key;
+    if (this.frozen) {
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' ', 'Home', 'End'].includes(k)) e.preventDefault();
+      return;
+    }
+    if (k === 'Home' || k === 'End') {
+      e.preventDefault();
+      if (this.active) this.release(0, false);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      this.navigate(k === 'Home' ? 0 : max, 1.4, k === 'Home' ? -1 : 1, true, k === 'Home' ? 0 : null);
+      return;
+    }
+    if (!this.active) return;
     let dir = 0;
     if (k === 'ArrowDown' || k === 'PageDown' || (k === ' ' && !e.shiftKey)) dir = 1;
     else if (k === 'ArrowUp' || k === 'PageUp' || (k === ' ' && e.shiftKey)) dir = -1;
     if (!dir) return;
     if (k === ' ' && tag === 'button') return;
     e.preventDefault();
+    this.input = 'key';
     this.go(dir);
+  }
+
+  onFocus(e) {
+    const s = this.active;
+    if (!s || this.frozen || !e.target || s.el.contains(e.target) || !document.body.contains(e.target)) return;
+    if (!e.target.matches(':focus-visible')) return;     // pointer clicks are handled by their own links
+    this.release(0, false);
+    const r = e.target.getBoundingClientRect();
+    this.lenis.scrollTo(r.top + window.scrollY - window.innerHeight / 3, { immediate: true, force: true });
+    this.prevY = window.scrollY;
   }
 
   onScroll() {

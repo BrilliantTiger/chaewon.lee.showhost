@@ -117,8 +117,8 @@ function build(gl, frag) {
   return u;
 }
 
-function fit(canvas, gl, maxDpr) {
-  const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
+function fit(canvas, gl, maxDpr, scale = 1) {
+  const dpr = Math.min(window.devicePixelRatio || 1, maxDpr) * scale;
   const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
   const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
   if (canvas.width !== w || canvas.height !== h) {
@@ -153,7 +153,8 @@ export class Wall {
     requestAnimationFrame(this.frame);
     if (!this.visible || this.lost || document.hidden) return;
     const gl = this.gl;
-    const [w, h] = fit(this.canvas, gl, 1.5);
+    // the wall is soft light and grain: rendering it at about half resolution looks the same and costs a quarter
+    const [w, h] = fit(this.canvas, gl, 1, 0.6);
     this.mouse[0] += (this.target[0] - this.mouse[0]) * 0.06;
     this.mouse[1] += (this.target[1] - this.mouse[1]) * 0.06;
     this.pulse = Math.min(1, this.pulse + 0.012);

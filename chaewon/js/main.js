@@ -14,7 +14,7 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 const coarse = matchMedia('(pointer: coarse)').matches;
-const stacked = () => innerWidth < 700 || innerWidth / innerHeight < 0.9;
+const stacked = () => innerWidth / innerHeight < 0.9;   // portrait-ish: the phone sits above the copy
 
 window.scrollTo(0, 0);
 
@@ -91,6 +91,25 @@ if (fine && !RM) {
   });
 }
 
+/* ---------- endless loops only run while they are on screen ---------- */
+
+function whileVisible(el, anim) {
+  anim.pause();
+  ScrollTrigger.create({ trigger: el, start: 'top bottom', end: 'bottom top', onToggle: (self) => (self.isActive ? anim.resume() : anim.pause()) });
+  return anim;
+}
+
+/* ---------- scramble that always lands on the real text ---------- */
+
+// The original text is kept on the element, so a scramble that starts while
+// another is still running can never "land" on half-scrambled characters.
+function scramble(el, opts = {}) {
+  if (el.dataset.text == null) el.dataset.text = el.textContent;
+  gsap.killTweensOf(el, 'scrambleText');
+  const { chars = '0123456789', speed = 0.6, duration = 0.6, delay = 0, revealDelay = 0 } = opts;
+  return gsap.to(el, { duration, delay, scrambleText: { text: el.dataset.text, chars, speed, revealDelay }, onInterrupt: () => { el.textContent = el.dataset.text; } });
+}
+
 /* ---------- section titles ---------- */
 
 function splitTitles() {
@@ -99,14 +118,13 @@ function splitTitles() {
     const split = new SplitText(el, { type: 'words,chars', wordsClass: 'w', charsClass: 'ch' });
     gsap.set(el, { perspective: 600 });
     gsap.from(split.chars, {
-      yPercent: 110, rotateX: -80, autoAlpha: 0, duration: 1, ease: 'expo.out', stagger: 0.035,
+      yPercent: 110, autoAlpha: 0, duration: 1, ease: 'expo.out', stagger: 0.035,
       scrollTrigger: { trigger: el, start: 'top 88%' },
     });
   });
   $$('.sec-no').forEach((el) => {
-    const txt = el.textContent;
     gsap.from(el, { autoAlpha: 0, x: -16, duration: 0.6, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%' } });
-    ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: () => gsap.to(el, { duration: 0.8, scrambleText: { text: txt, chars: '0123456789', speed: 0.5 } }) });
+    ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: () => scramble(el, { duration: 0.8, speed: 0.5 }) });
   });
   $$('.sec-sub').forEach((el) => {
     gsap.from(el, { autoAlpha: 0, y: 18, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 92%' } });
@@ -163,13 +181,28 @@ function decorate() {
 }
 
 let heroTl = null;
+
+// The dot of each category tag sits on a point of her outfit. The offsets are percentages
+// (plus half a dot), so they stay right when the tag changes size at a breakpoint.
+function anchorTags() {
+  if (RM) return;
+  tags.forEach((t) => {
+    const reversed = getComputedStyle(t).flexDirection === 'row-reverse';
+    const half = $('i', t).offsetWidth / 2;
+    gsap.set(t, { xPercent: reversed ? -100 : 0, yPercent: -50, x: reversed ? half : -half });
+  });
+}
 function buildPhone() {
   heroSec.classList.toggle('is-stacked', stacked());
   const R = phoneRect();
   const s = R.h / R.H;
   const insetX = Math.max(0, (R.W - R.w / s) / 2);
   const progress = heroTl ? heroTl.progress() : 0;
-  if (heroTl) heroTl.kill();
+  // revert, not kill: from() tweens record their end state when they are created, so a rebuild
+  // on top of a half-hidden layout (every resize, and every iOS toolbar change) would hide the UI for good
+  if (heroTl) heroTl.revert();
+  phone.classList.toggle('is-tiny', R.w < 175);
+  anchorTags();
   gsap.set([stage, phone, statement], { clearProps: 'all' });
   Object.entries({ '--px': R.x, '--py': R.y, '--pw': R.w, '--ph': R.h, '--pr': R.r }).forEach(([k, v]) => phone.style.setProperty(k, `${v}px`));
 
@@ -184,18 +217,19 @@ function buildPhone() {
   tl.to(heroOut, { autoAlpha: 0, y: -26, duration: 0.45, stagger: 0.03, ease: 'power2.in' }, 0)
     .to(tags, { scale: 0, autoAlpha: 0, duration: 0.35, stagger: 0.04, ease: 'back.in(2)' }, 0)
     .to(['.viewfinder', '.scroll-cue'], { autoAlpha: 0, duration: 0.3 }, 0)
-    .to(typeRows, { yPercent: -24, scale: 1.18, autoAlpha: 0, duration: 0.7, stagger: 0.06, ease: 'power2.in' }, 0.05)
+    .to(typeRows, { yPercent: -30, autoAlpha: 0, duration: 0.6, stagger: 0.06, ease: 'power2.in' }, 0.05)
     .fromTo(stage, { x: 0, y: 0, scale: 1, clipPath: 'inset(0px 0px round 0px)' }, {
       x: R.cx - R.W / 2, y: R.cy - R.H / 2, scale: s, clipPath: `inset(0px ${insetX}px round ${R.r / s}px)`, duration: 1.05, ease: 'expo.inOut',
     }, 0.12)
-    .fromTo(phone, { autoAlpha: 0, scale: 1.07 }, { autoAlpha: 1, scale: 1, duration: 0.55, ease: 'power3.out' }, 0.92)
+    .fromTo(phone, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: 'power2.out' }, 0.95)
     .from(ui, { autoAlpha: 0, y: 12, duration: 0.45, stagger: 0.07, ease: 'power3.out' }, 1.05)
     .set(statement, { autoAlpha: 1 }, 0.95)
     .from($('.statement-kicker', statement), { autoAlpha: 0, x: -24, duration: 0.55, ease: 'power3.out' }, 0.95);
   if (statementSplit) {
-    tl.from(statementSplit.chars, { yPercent: 70, rotateX: -70, autoAlpha: 0, duration: 0.7, stagger: 0.018, ease: 'expo.out' }, 1.0);
+    tl.from(statementSplit.chars, { yPercent: 70, autoAlpha: 0, duration: 0.7, stagger: 0.018, ease: 'expo.out' }, 1.0);
   }
-  tl.fromTo(hl, { backgroundSize: '0% 38%' }, { backgroundSize: '100% 38%', duration: 0.55, stagger: 0.18, ease: 'power2.inOut' }, 1.35)
+  tl.fromTo($$('.statement em', statement), { backgroundColor: 'rgba(34, 50, 79, 0)' }, { backgroundColor: 'rgba(34, 50, 79, 1)', duration: 0.35, stagger: 0.12, ease: 'power2.out' }, 1.3)
+    .fromTo(hl, { backgroundSize: '0% 38%' }, { backgroundSize: '100% 38%', duration: 0.55, stagger: 0.18, ease: 'power2.inOut' }, 1.35)
     .fromTo(energyChars, { y: 0 }, { y: -14, duration: 0.18, stagger: 0.05, ease: 'power2.out', yoyo: true, repeat: 1 }, 1.55)
     .fromTo(sparks, { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.3, stagger: 0.05, ease: 'power2.out' }, 1.62)
     .fromTo(wave, { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.55, ease: 'power2.inOut' }, 1.75)
@@ -217,7 +251,9 @@ function heroGo(next) {
       setTimeout(() => hearts?.burst(R.x + R.w - 28, R.y + R.h - 120, 14, 0.8), 1050);
     } else {
       phone.classList.remove('is-on');
-      heroTl.timeScale(1.5).eventCallback('onReverseComplete', res).reverse();
+      // resolve on the clock, not on onReverseComplete: a rebuild mid-rewind would never fire it
+      gsap.delayedCall(Math.max(0.3, heroTl.time() / 1.5), res);
+      heroTl.timeScale(1.5).reverse();
     }
   });
 }
@@ -339,7 +375,7 @@ function showBest(i, prev, dir) {
     tl.to(bestSplits[prev].chars, { yPercent: -110 * dir, autoAlpha: 0, duration: 0.4, stagger: 0.012, ease: 'power2.in' }, 0)
       .to(outKids.filter((c) => !c.classList.contains('best-title')), { autoAlpha: 0, y: -20 * dir, duration: 0.35, stagger: 0.03, ease: 'power2.in' }, 0)
       .add(() => { inn.classList.add('is-on'); }, 0.38)
-      .fromTo(bestSplits[i].chars, { yPercent: 110 * dir, rotateX: -70 * dir, autoAlpha: 0 }, { yPercent: 0, rotateX: 0, autoAlpha: 1, duration: 0.8, stagger: 0.03, ease: 'expo.out' }, 0.42)
+      .fromTo(bestSplits[i].chars, { yPercent: 110 * dir, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.8, stagger: 0.03, ease: 'expo.out' }, 0.42)
       .fromTo(inKids, { autoAlpha: 0, y: 26 * dir }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.06, ease: 'expo.out' }, 0.45)
       .to(best, { backgroundColor: d.bg, color: d.ink, duration: 0.9, ease: 'power2.inOut' }, 0)
       .to(bestWord, { xPercent: -8 * dir, autoAlpha: 0, duration: 0.4, ease: 'power2.in' }, 0)
@@ -347,7 +383,7 @@ function showBest(i, prev, dir) {
       .fromTo(bestWord, { xPercent: 8 * dir, autoAlpha: 0 }, { xPercent: 0, autoAlpha: 0.16, duration: 0.9, ease: 'expo.out' }, 0.42)
       .fromTo(bestFrame, { scale: 1 }, { scale: 0.94, duration: 0.45, ease: 'power2.in', yoyo: true, repeat: 1 }, 0);
     const no = $('.best-no', inn);
-    tl.add(() => gsap.to(no, { duration: 0.6, scrambleText: { text: no.textContent, chars: '0123456789', speed: 0.6 } }), 0.42);
+    tl.add(() => scramble(no), 0.42);
     bestDots.forEach((dot, k) => dot.classList.toggle('is-on', k === i));
     if (cut) {
       const st = { p: 0 };
@@ -383,7 +419,7 @@ function initData() {
     if (RM) { strips.forEach(([s, n]) => gsap.set(s, { yPercent: -5 * (10 + n) })); return; }
     gsap.set(strips.map((s) => s[0]), { yPercent: 0 });
     ScrollTrigger.create({
-      trigger: el, start: 'top 85%', once: true,
+      trigger: el, start: 'top 96%', once: true,
       onEnter: () => {
         strips.forEach(([s, n], k) => gsap.to(s, { yPercent: -5 * (10 + n), duration: 1.6 + k * 0.25, ease: 'expo.out', delay: 0.05 * k }));
         const u = $('.odo-unit', el);
@@ -414,12 +450,14 @@ function initData() {
   // the left card shows the row under the pointer, so nothing ever floats over the bars
   const detail = $('.rank-detail');
   const parts = { k: $('[data-k]', detail), t: $('[data-t]', detail), c: $('[data-c]', detail) };
+  let pickTl = null;
   const pick = (r) => {
     if (r.classList.contains('is-on')) return;
     ranks.forEach((x) => x.classList.toggle('is-on', x === r));
     const val = $('.rank-val', r).dataset.count;
     detail.href = $('.rank-name a', r).href;
-    gsap.timeline()
+    pickTl?.kill();
+    pickTl = gsap.timeline()
       .to(Object.values(parts), { yPercent: -60, autoAlpha: 0, duration: 0.16, stagger: 0.03, ease: 'power2.in' })
       .add(() => {
         parts.k.textContent = `${$('.rank-no', r).textContent}위 · ${$('.rank-name small', r).textContent}`;
@@ -436,24 +474,25 @@ function initData() {
 
 /* ---------- marquees that lean into the scroll ---------- */
 
-function marquee(track, dir, seconds) {
+function marquee(track, width, dir, seconds) {
+  // `width` was measured up front: copies to fill 2.2 screens, then the whole set twice for a seamless loop
   const items = [...track.children];
-  const fill = () => track.scrollWidth < innerWidth * 2.2;
-  while (fill()) items.forEach((n) => track.appendChild(n.cloneNode(true)));
-  [...track.children].forEach((n, k) => { if (k >= items.length) n.setAttribute('aria-hidden', 'true'); });
+  const copies = Math.max(0, Math.ceil((innerWidth * 2.2) / Math.max(1, width)) - 1);
+  const frag = document.createDocumentFragment();
+  for (let c = 0; c < copies; c++) items.forEach((n) => { const k = n.cloneNode(true); k.setAttribute('aria-hidden', 'true'); frag.appendChild(k); });
+  track.appendChild(frag);
   const half = [...track.children];
-  half.forEach((n) => track.appendChild(n.cloneNode(true)));
-  [...track.children].slice(half.length).forEach((n) => n.setAttribute('aria-hidden', 'true'));
-  const tw = gsap.fromTo(track, { xPercent: dir > 0 ? 0 : -50 }, { xPercent: dir > 0 ? -50 : 0, duration: seconds, ease: 'none', repeat: -1 });
-  return tw;
+  const frag2 = document.createDocumentFragment();
+  half.forEach((n) => { const k = n.cloneNode(true); k.setAttribute('aria-hidden', 'true'); frag2.appendChild(k); });
+  track.appendChild(frag2);
+  return gsap.fromTo(track, { xPercent: dir > 0 ? 0 : -50 }, { xPercent: dir > 0 ? -50 : 0, duration: seconds, ease: 'none', repeat: -1 });
 }
 
 function initMarquees() {
   if (RM) return;
-  const tweens = [];
-  $$('.brandwall-row').forEach((row, k) => tweens.push(marquee($('.brandwall-track', row), k % 2 ? -1 : 1, 38)));
-  tweens.push(marquee($('.contact-marquee p'), 1, 26));
-  tweens.push(marquee($('.platforms-track'), -1, 30));
+  const tracks = [...$$('.brandwall-track').map((t, k) => [t, k % 2 ? -1 : 1, 38]), [$('.contact-marquee p'), 1, 26], [$('.platforms-track'), -1, 30]];
+  const widths = tracks.map(([t]) => t.scrollWidth);          // read everything once…
+  const tweens = tracks.map(([t, dir, sec], k) => whileVisible(t.parentElement, marquee(t, widths[k], dir, sec)));   // …then write
   const skews = [...$$('.brandwall-track'), $('.contact-marquee p'), $('.platforms-track')].map((el) => gsap.quickTo(el, 'skewX', { duration: 0.5, ease: 'power3' }));
   let speed = 1;
   let target = 1;
@@ -499,7 +538,7 @@ function initSignature() {
     });
   });
   const sticker = $('.sig-sticker svg');
-  const spin = gsap.to(sticker, { rotation: 360, duration: 16, repeat: -1, ease: 'none', transformOrigin: '50% 50%' });
+  const spin = whileVisible('.sig', gsap.to(sticker, { rotation: 360, duration: 16, repeat: -1, ease: 'none', transformOrigin: '50% 50%' }));
   ScrollTrigger.create({
     trigger: '.sig', start: 'top bottom', end: 'bottom top',
     onUpdate: (self) => { spin.timeScale(1 + Math.min(Math.abs(self.getVelocity()) / 300, 6)); gsap.to(spin, { timeScale: 1, duration: 1.2, overwrite: true, delay: 0.1 }); },
@@ -521,7 +560,7 @@ function initStyle() {
   if (RM) return;
   const quote = new SplitText('.style-quote-text', { type: 'words,chars', wordsClass: 'qw', charsClass: 'qch' });
   gsap.timeline({ scrollTrigger: { trigger: '.style-quote', start: 'top 80%' } })
-    .from(quote.chars, { yPercent: 80, autoAlpha: 0, rotateX: -70, duration: 0.8, stagger: 0.03, ease: 'expo.out' })
+    .from(quote.chars, { yPercent: 80, autoAlpha: 0, duration: 0.8, stagger: 0.03, ease: 'expo.out' })
     .fromTo('.style-burst path', { drawSVG: '0% 0%' }, { drawSVG: '0% 100%', duration: 0.35, stagger: 0.02, ease: 'power2.out' }, '-=0.3')
     .to('.style-burst path', { drawSVG: '100% 100%', duration: 0.35, stagger: 0.02, ease: 'power2.in' })
     .fromTo(em, { scale: 1 }, { scale: 1.16, duration: 0.18, yoyo: true, repeat: 1, ease: 'power2.out' }, '<-0.4')
@@ -532,15 +571,15 @@ function initStyle() {
   const items = [...track.children];
   items.forEach((n) => { const c = n.cloneNode(true); c.setAttribute('aria-hidden', 'true'); track.appendChild(c); });
   const loopH = () => items.reduce((h, n) => h + n.offsetHeight + 10, 0);
-  let chat = gsap.fromTo(track, { y: 0 }, { y: () => -loopH(), duration: 12, ease: 'none', repeat: -1 });
+  const chat = whileVisible('.chat', gsap.fromTo(track, { y: 0 }, { y: () => -loopH(), duration: 12, ease: 'none', repeat: -1 }));
   gsap.from('.chat', { autoAlpha: 0, x: 40, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.chat', start: 'top 85%' } });
-  addEventListener('resize', () => { chat.kill(); chat = gsap.fromTo(track, { y: 0 }, { y: () => -loopH(), duration: 12, ease: 'none', repeat: -1 }); });
+  addEventListener('resize', () => { const paused = chat.paused(); chat.invalidate().restart(); if (paused) chat.pause(); });
 
   const cards = $$('.style-card');
   gsap.from(cards, { rotateY: -70, autoAlpha: 0, x: -40, transformOrigin: 'left center', duration: 1.1, stagger: 0.14, ease: 'expo.out', scrollTrigger: { trigger: '.style-cards', start: 'top 82%' } });
   cards.forEach((c) => {
     const no = $('.style-no', c);
-    c.addEventListener('pointerenter', () => gsap.to(no, { duration: 0.5, scrambleText: { text: no.textContent, chars: '0123456789', speed: 0.7 } }));
+    c.addEventListener('pointerenter', () => scramble(no, { duration: 0.5, speed: 0.7 }));
     if (!fine) return;
     const rx = gsap.quickTo(c, 'rotationX', { duration: 0.6, ease: 'power3' });
     const ry = gsap.quickTo(c, 'rotationY', { duration: 0.6, ease: 'power3' });
@@ -568,6 +607,7 @@ function initStyle() {
 /* ---------- 06 LIVE LOG ---------- */
 
 let currentYear = '2026';
+let yearSwitch = null;
 function selectYear(year, animate = true) {
   const rows = $$('.lg-row');
   if (year === currentYear && animate) return;
@@ -580,25 +620,29 @@ function selectYear(year, animate = true) {
     show.forEach((r) => { r.hidden = false; });
     return;
   }
+  const list = $('.board-rows');
+  yearSwitch?.kill();
+  gsap.killTweensOf(rows);
   const out = rows.filter((r) => !r.hidden && r.dataset.year !== year);
-  gsap.to(out, {
-    rotateX: 90, autoAlpha: 0, duration: 0.18, stagger: 0.025, ease: 'power2.in',
-    onComplete: () => {
-      out.forEach((r) => { r.hidden = true; });
-      show.forEach((r) => { r.hidden = false; });
-      flapIn(show);
-      ScrollTrigger.refresh();
-    },
-  });
+  const swap = () => {
+    if (year !== currentYear) return;
+    const from = list.offsetHeight;
+    rows.forEach((r) => { r.hidden = r.dataset.year !== year; });
+    const to = list.offsetHeight;
+    gsap.fromTo(list, { height: from }, { height: to, duration: 0.45, ease: 'power3.inOut', overwrite: true, onComplete: () => { gsap.set(list, { clearProps: 'height' }); ScrollTrigger.refresh(); } });
+    flapIn(show);
+  };
+  yearSwitch = out.length
+    ? gsap.to(out, { rotateX: 90, autoAlpha: 0, duration: 0.18, stagger: 0.025, ease: 'power2.in', onComplete: swap })
+    : gsap.delayedCall(0, swap);
 }
 
 function flapIn(rows) {
-  gsap.fromTo(rows, { rotateX: -90, autoAlpha: 0 }, { rotateX: 0, autoAlpha: 1, duration: 0.55, stagger: 0.06, ease: 'back.out(1.6)' });
+  gsap.fromTo(rows, { rotateX: -90, autoAlpha: 0 }, { rotateX: 0, autoAlpha: 1, duration: 0.55, stagger: 0.06, ease: 'back.out(1.6)', overwrite: true });
   rows.forEach((r, k) => {
     ['time', '.lg-brand', '.lg-title'].forEach((sel, j) => {
-      const el = $(sel, r);
-      const txt = el.textContent;
-      gsap.to(el, { duration: 0.7 + j * 0.15, delay: 0.06 * k, scrambleText: { text: txt, chars: sel === 'time' ? '0123456789.' : '가나다라마바사아자차카타파하ABCDEFGHJKLMNOPRSTUVWXYZ', speed: 0.9, revealDelay: 0.15 } });
+      scramble($(sel, r), { duration: 0.7 + j * 0.15, delay: 0.06 * k, speed: 0.9, revealDelay: 0.15,
+        chars: sel === 'time' ? '0123456789.' : '가나다라마바사아자차카타파하ABCDEFGHJKLMNOPRSTUVWXYZ' });
     });
   });
 }
@@ -620,6 +664,7 @@ const ink = $('.tab-ink');
 const cards = $$('.card');
 const notes = $$('.cat-note');
 let currentCat = 'fashion';
+let catSwitch = null;
 
 function placeInk(immediate) {
   const t = tabs.find((x) => x.dataset.cat === currentCat);
@@ -652,14 +697,19 @@ function staticBurst() {
     .to(cv, { opacity: 0, duration: 0.35, ease: 'power2.in' }, 0.22);
   const grid = $('.grid');
   gsap.timeline()
-    .to(grid, { x: () => gsap.utils.random(-14, 14), skewX: () => gsap.utils.random(-4, 4), filter: 'drop-shadow(5px 0 0 rgba(255,45,85,.7)) drop-shadow(-5px 0 0 rgba(80,180,255,.7))', duration: 0.06, repeat: 4, yoyo: true })
-    .set(grid, { x: 0, skewX: 0, filter: 'none' });
+    .to(grid, { x: () => gsap.utils.random(-14, 14), skewX: () => gsap.utils.random(-4, 4), duration: 0.06, repeat: 4, yoyo: true })
+    .set(grid, { x: 0, skewX: 0 });
 }
 
 function selectCat(cat, animate = true) {
   if (cat === currentCat && animate) return;
   currentCat = cat;
   tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.cat === cat)));
+  const strip = $('.tabs');
+  const active = tabs.find((t) => t.dataset.cat === cat);
+  if (strip.scrollWidth > strip.clientWidth + 2) {
+    strip.scrollTo({ left: active.offsetLeft - (strip.clientWidth - active.offsetWidth) / 2, behavior: animate && !RM ? 'smooth' : 'auto' });
+  }
   placeInk(!animate);
   notes.forEach((n) => n.classList.toggle('is-on', n.dataset.cat === cat));
   const on = notes.find((n) => n.dataset.cat === cat);
@@ -667,21 +717,27 @@ function selectCat(cat, animate = true) {
   const outgoing = cards.filter((c) => !c.hidden && c.dataset.cat !== cat);
   if (!animate || RM) {
     cards.forEach((c) => { c.hidden = c.dataset.cat !== cat; });
+    if (!RM) gsap.set(incoming, { autoAlpha: 1, y: 0, rotate: 0, scale: 1 });
+    notes.forEach((n) => gsap.set(n, { autoAlpha: n.dataset.cat === cat ? 1 : 0 }));
     return;
   }
+  gsap.killTweensOf(notes);
+  gsap.set(notes.filter((n) => n !== on), { autoAlpha: 0, y: 0 });
   gsap.fromTo(on, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' });
   staticBurst();
-  gsap.to(outgoing, {
-    autoAlpha: 0, y: -24, rotate: () => gsap.utils.random(-6, 6), scale: 0.92, duration: 0.25, stagger: 0.02, ease: 'power2.in',
-    onComplete: () => {
-      outgoing.forEach((c) => { c.hidden = true; });
-      incoming.forEach((c) => { c.hidden = false; });
-      gsap.fromTo(incoming, { autoAlpha: 0, y: 60, rotate: () => gsap.utils.random(-8, 8), scale: 0.9 }, {
-        autoAlpha: 1, y: 0, rotate: 0, scale: 1, duration: 0.9, stagger: 0.06, ease: 'expo.out',
-      });
-      ScrollTrigger.refresh();
-    },
-  });
+  catSwitch?.kill();
+  gsap.killTweensOf(cards);
+  const swap = () => {
+    if (cat !== currentCat) return;
+    cards.forEach((c) => { c.hidden = c.dataset.cat !== cat; });
+    gsap.fromTo(incoming, { autoAlpha: 0, y: 60, rotate: () => gsap.utils.random(-8, 8), scale: 0.9 }, {
+      autoAlpha: 1, y: 0, rotate: 0, scale: 1, duration: 0.9, stagger: 0.06, ease: 'expo.out',
+    });
+    ScrollTrigger.refresh();
+  };
+  catSwitch = outgoing.length
+    ? gsap.to(outgoing, { autoAlpha: 0, y: -24, rotate: () => gsap.utils.random(-6, 6), scale: 0.92, duration: 0.25, stagger: 0.02, ease: 'power2.in', onComplete: swap })
+    : gsap.delayedCall(0, swap);
 }
 
 function initLives() {
@@ -757,7 +813,7 @@ function initHistory() {
         .fromTo('.badges', { x: 0 }, { x: 5, duration: 0.05, repeat: 5, yoyo: true, ease: 'none' }, 0.32);
     },
   });
-  $$('.badge-ring').forEach((r, i) => gsap.to(r, { rotation: i % 2 ? -360 : 360, duration: 22, repeat: -1, ease: 'none', transformOrigin: '50% 50%' }));
+  $$('.badge-ring').forEach((r, i) => whileVisible('.awards', gsap.to(r, { rotation: i % 2 ? -360 : 360, duration: 22, repeat: -1, ease: 'none', transformOrigin: '50% 50%' })));
 }
 
 /* ---------- 05 FITTING ---------- */
@@ -765,6 +821,15 @@ function initHistory() {
 function countUp(el, to, duration = 1.4, delay = 0) {
   const o = { v: 0 };
   return gsap.to(o, { v: to, duration, delay, ease: 'expo.out', onUpdate: () => { el.textContent = Math.round(o.v); } });
+}
+
+/** Count every number inside a label like "44반–55" or "235–240", leaving the rest as it is. */
+function countText(el, duration = 1.3, delay = 0) {
+  const parts = el.textContent.split(/(\d+)/);
+  const o = { p: 0 };
+  return gsap.to(o, { p: 1, duration, delay, ease: 'expo.out', onUpdate: () => {
+    el.textContent = parts.map((t, i) => (i % 2 ? Math.round(Number(t) * o.p) : t)).join('');
+  } });
 }
 
 function initFitting() {
@@ -784,11 +849,11 @@ function initFitting() {
         .fromTo(ruler, { scaleY: 0 }, { scaleY: 1, duration: 1.3, ease: 'expo.out' }, 0.3)
         .add(() => countUp($('.fit-ruler-val [data-count]'), 168, 1.4), 0.35)
         .add(() => {
-          gsap.timeline({ repeat: -1, repeatDelay: 2.4 })
+          whileVisible(fig, gsap.timeline({ repeat: -1, repeatDelay: 2.4 })
             .set(scan, { top: '0%', opacity: 0 })
             .to(scan, { opacity: 0.55, duration: 0.2 })
             .to(scan, { top: '100%', duration: 2.4, ease: 'none' }, 0)
-            .to(scan, { opacity: 0, duration: 0.3 }, 2.1);
+            .to(scan, { opacity: 0, duration: 0.3 }, 2.1));
         }, 2.2);
     },
   });
@@ -800,7 +865,7 @@ function initFitting() {
       rows.forEach((r, k) => {
         const b = $('b[data-count]', r);
         if (b) countUp(b, Number(b.dataset.count), 1.3, 0.1 * k);
-        else gsap.from($('b', r), { duration: 0.9, delay: 0.1 * k, scrambleText: { text: $('b', r).textContent, chars: '0123456789–', speed: 0.6 } });
+        else countText($('b', r), 1.3, 0.1 * k);
       });
     },
   });
@@ -866,7 +931,7 @@ function heroIntro() {
     .from(person, { y: '7%', scale: 1.05, autoAlpha: 0, duration: 1.5, ease: 'expo.out' }, 0.1)
     .from(shadow, { autoAlpha: 0, duration: 1.2, ease: 'power2.out' }, 0.5)
     .from($$('.hero-eyebrow > *', heroSec), { autoAlpha: 0, y: -14, duration: 0.6, stagger: 0.08, ease: 'power3.out' }, 0.5)
-    .from(split.chars, { yPercent: 110, rotateX: -90, autoAlpha: 0, duration: 0.9, stagger: 0.05, ease: 'expo.out' }, 0.55)
+    .from(split.chars, { yPercent: 110, autoAlpha: 0, duration: 0.9, stagger: 0.05, ease: 'expo.out' }, 0.55)
     .from($('.hero-en', heroSec), { autoAlpha: 0, letterSpacing: '1em', duration: 1.1, ease: 'expo.out' }, 0.75)
     .from($$('.hero-tagline span', heroSec), { autoAlpha: 0, x: 30, duration: 0.8, stagger: 0.12, ease: 'expo.out' }, 0.8)
     .from(tags, { scale: 0, autoAlpha: 0, duration: 0.6, stagger: 0.1, ease: 'back.out(2.4)' }, 1.0)
@@ -893,6 +958,7 @@ async function intro() {
   ]);
   lineTw.kill();
   await gsap.to('.loader-line i', { scaleX: 1, duration: 0.25, ease: 'power2.out' });
+  performance.mark('intro:countdown');
   gsap.set(ring, { drawSVG: '0%' });
   for (const [k, n] of ['3', '2', '1'].entries()) {
     num.textContent = n;
@@ -916,11 +982,14 @@ async function intro() {
     .to(heart, { scale: 0.86, duration: 0.12, ease: 'power2.in' }, 0.78)
     .to(heart, { scale: 1.06, duration: 0.14, ease: 'power2.out' }, 0.9);
   gsap.to(['.loader-live', '.loader-msg', '.loader-line', num], { autoAlpha: 0, duration: 0.2 });
-  await gsap.to(heart, { scale: 26, duration: 0.6, ease: 'expo.in', transformOrigin: '50% 58%' });
-  gsap.set(loader, { backgroundColor: 'transparent' });
+  await gsap.timeline()
+    .to(heart, { scale: 6, duration: 0.55, ease: 'expo.in', transformOrigin: '50% 58%' })
+    .to(loader, { backgroundColor: '#fe86aa', duration: 0.3, ease: 'power2.in' }, 0.25);
+  gsap.set(heart, { autoAlpha: 0 });
   if (skip) gsap.globalTimeline.timeScale(1);
+  performance.mark('intro:hero');
   const heroAnim = heroIntro();
-  await gsap.to(heart, { autoAlpha: 0, duration: 0.5, ease: 'power2.out' });
+  await gsap.to(loader, { autoAlpha: 0, duration: 0.5, ease: 'power2.out' });
   loader.remove();
   await heroAnim;
 }
@@ -945,6 +1014,8 @@ const bestScene = {
 };
 
 async function boot() {
+  performance.mark('boot:start');
+  scenes?.freeze(true);
   initBest();
   initData();
   initSignature();
@@ -966,11 +1037,14 @@ async function boot() {
       rz = setTimeout(() => { buildPhone(); heroTl.progress(heroStep); ScrollTrigger.refresh(); }, 160);
     });
   }
+  performance.mark('boot:ready');
   await intro();
   if (scenes) {
     scenes.add(heroScene);
     scenes.add(bestScene);
-    if (window.scrollY < 2) scenes.lock(heroScene, 0);
+    window.scrollTo(0, 0);
+    scenes.freeze(false);
+    scenes.lock(heroScene, 0);
   }
   ScrollTrigger.refresh();
   window.__show = { scenes, heroScene, bestScene };
