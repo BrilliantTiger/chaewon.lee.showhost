@@ -910,7 +910,7 @@ async function intro() {
     .set(heart, { visibility: 'visible' }, 0.1)
     .fromTo(shape, { opacity: 0 }, { opacity: 1, duration: 0.2 }, 0.1)
     .to('.loader-ring', { autoAlpha: 0, duration: 0.2 }, 0.15)
-    .to(num, { color: '#fff', duration: 0.2 }, 0.15)
+    .to(num, { color: '#fff', scale: 0.62, y: -6, duration: 0.3, ease: 'power3.out' }, 0.15)
     .to(shape, { morphSVG: '.loader-heart-to', duration: 0.45, ease: 'back.out(1.8)' }, 0.3)
     .to(heart, { scale: 0.86, duration: 0.12, ease: 'power2.in' }, 0.78)
     .to(heart, { scale: 1.06, duration: 0.14, ease: 'power2.out' }, 0.9);
