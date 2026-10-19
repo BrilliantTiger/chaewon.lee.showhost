@@ -22,7 +22,16 @@ window.scrollTo(0, 0);
 
 let lenis = null;
 if (!RM) {
-  lenis = new Lenis({ lerp: 0.11, smoothWheel: true, syncTouch: false, wheelMultiplier: 1 });
+  // Touch scrolling runs through Lenis too. iOS momentum can't be stopped from script, so a scene that
+  // caught a native fling had to fight it frame by frame and shook; Lenis momentum stops cleanly. The
+  // toolbar also stays put, so nothing resizes mid-scroll. Two-finger gestures stay native (pinch zoom).
+  lenis = new Lenis({
+    lerp: 0.11, smoothWheel: true, wheelMultiplier: 1,
+    syncTouch: true, syncTouchLerp: 0.09, touchInertiaExponent: 1.6, allowNestedScroll: true,
+    // while a scene is being steered into, Lenis ignores input (the scene engine holds it instead)
+    virtualScroll: ({ event }) => !(event.touches && event.touches.length > 1) && !scenes?.catching,
+  });
+  ScrollTrigger.config({ ignoreMobileResize: true });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((t) => lenis.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
@@ -343,18 +352,9 @@ function initBest() {
   bestDots[0].classList.add('is-on');
   bestWord.textContent = bestData[0].title;
   cut?.set(0, 0, 0);
-  gsap.set(best, { perspective: 1200 });
-  gsap.from(bestFrame, { autoAlpha: 0, scale: 0.86, rotateY: -12, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: best, start: 'top 70%' } });
+  // the card itself stays still: a frame that tilts with the pointer or pulses on every step reads as shaking
+  gsap.from(bestFrame, { autoAlpha: 0, scale: 0.92, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: best, start: 'top 70%' } });
   gsap.from(bestItems[0].children, { autoAlpha: 0, y: 30, duration: 0.9, stagger: 0.07, ease: 'expo.out', scrollTrigger: { trigger: best, start: 'top 60%' } });
-  if (fine) {
-    const tx = gsap.quickTo(bestFrame, 'rotationY', { duration: 0.8, ease: 'power3' });
-    const ty = gsap.quickTo(bestFrame, 'rotationX', { duration: 0.8, ease: 'power3' });
-    best.addEventListener('pointermove', (e) => {
-      const r = best.getBoundingClientRect();
-      tx(((e.clientX - r.left) / r.width - 0.5) * 10);
-      ty(((e.clientY - r.top) / r.height - 0.5) * -8);
-    });
-  }
   bestDots.forEach((d, i) => {
     d.style.pointerEvents = 'auto';
     d.style.cursor = 'pointer';
@@ -362,14 +362,18 @@ function initBest() {
   });
 }
 
+let bestTl = null;
 function showBest(i, prev, dir) {
   return new Promise((res) => {
     if (i === prev) { res(); return; }
+    // a new step while the last one is still playing: land the last one first, so two timelines never
+    // pull the same letters, colours and image at once
+    bestTl?.progress(1);
     const out = bestItems[prev];
     const inn = bestItems[i];
     const d = bestData[i];
     bestShown = i;
-    const tl = gsap.timeline({ onComplete: () => { out.classList.remove('is-on'); res(); } });
+    const tl = (bestTl = gsap.timeline({ onComplete: () => { out.classList.remove('is-on'); res(); } }));
     const outKids = [...out.children].filter((c) => !c.classList.contains('best-img'));
     const inKids = [...inn.children].filter((c) => !c.classList.contains('best-img') && !c.classList.contains('best-title'));
     tl.to(bestSplits[prev].chars, { yPercent: -110 * dir, autoAlpha: 0, duration: 0.4, stagger: 0.012, ease: 'power2.in' }, 0)
@@ -380,8 +384,7 @@ function showBest(i, prev, dir) {
       .to(best, { backgroundColor: d.bg, color: d.ink, duration: 0.9, ease: 'power2.inOut' }, 0)
       .to(bestWord, { xPercent: -8 * dir, autoAlpha: 0, duration: 0.4, ease: 'power2.in' }, 0)
       .add(() => { bestWord.textContent = d.title; }, 0.4)
-      .fromTo(bestWord, { xPercent: 8 * dir, autoAlpha: 0 }, { xPercent: 0, autoAlpha: 0.16, duration: 0.9, ease: 'expo.out' }, 0.42)
-      .fromTo(bestFrame, { scale: 1 }, { scale: 0.94, duration: 0.45, ease: 'power2.in', yoyo: true, repeat: 1 }, 0);
+      .fromTo(bestWord, { xPercent: 8 * dir, autoAlpha: 0 }, { xPercent: 0, autoAlpha: 0.07, duration: 0.9, ease: 'expo.out' }, 0.42);
     const no = $('.best-no', inn);
     tl.add(() => scramble(no), 0.42);
     bestDots.forEach((dot, k) => dot.classList.toggle('is-on', k === i));
@@ -493,23 +496,18 @@ function initMarquees() {
   const tracks = [...$$('.brandwall-track').map((t, k) => [t, k % 2 ? -1 : 1, 38]), [$('.contact-marquee p'), 1, 26], [$('.platforms-track'), -1, 30]];
   const widths = tracks.map(([t]) => t.scrollWidth);          // read everything once…
   const tweens = tracks.map(([t, dir, sec], k) => whileVisible(t.parentElement, marquee(t, widths[k], dir, sec)));   // …then write
-  const skews = [...$$('.brandwall-track'), $('.contact-marquee p'), $('.platforms-track')].map((el) => gsap.quickTo(el, 'skewX', { duration: 0.5, ease: 'power3' }));
+  // Scrolling speeds the banners up, always in their own direction. They used to skew and run backwards
+  // with the scroll velocity, which made the big type swing left and right on a quick flick up and down.
   let speed = 1;
   let target = 1;
   ScrollTrigger.create({
     start: 0, end: 'max',
-    onUpdate: (self) => {
-      const v = self.getVelocity();
-      target = gsap.utils.clamp(-5, 5, v / 260) || 1;
-      if (Math.abs(target) < 1) target = Math.sign(target || 1);
-      skews.forEach((f) => f(gsap.utils.clamp(-10, 10, -v / 220)));
-    },
+    onUpdate: (self) => { target = Math.max(target, Math.min(2.2, 1 + Math.abs(self.getVelocity()) / 2400)); },
   });
   gsap.ticker.add(() => {
-    speed += (target - speed) * 0.08;
-    target += (Math.sign(target) - target) * 0.05;
+    speed += (target - speed) * 0.06;
+    target += (1 - target) * 0.04;
     tweens.forEach((t) => t.timeScale(speed));
-    if (Math.abs(target - Math.sign(target)) < 0.02) skews.forEach((f) => f(0));
   });
 }
 
@@ -884,6 +882,7 @@ function initContact() {
   if (RM) return;
   gsap.from('.contact-kicker', { autoAlpha: 0, y: 16, duration: 0.6, scrollTrigger: { trigger: '.contact-in', start: 'top 85%' } });
   gsap.from('.contact-title span', { yPercent: 60, autoAlpha: 0, duration: 1, stagger: 0.12, ease: 'expo.out', scrollTrigger: { trigger: '.contact-title', start: 'top 85%' } });
+  gsap.fromTo('.contact-title span:last-child', { backgroundSize: '0% 36%' }, { backgroundSize: '100% 36%', duration: 0.9, delay: 0.45, ease: 'power3.inOut', scrollTrigger: { trigger: '.contact-title', start: 'top 85%' } });
   gsap.set('.contact-in', { perspective: 1000 });
   gsap.from('.ticket', { y: 90, rotateX: 28, autoAlpha: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '.ticket', start: 'top 90%' } });
   gsap.from('.ticket-row', { autoAlpha: 0, x: 24, duration: 0.6, stagger: 0.08, ease: 'power3.out', scrollTrigger: { trigger: '.ticket', start: 'top 80%' } });
@@ -1032,7 +1031,12 @@ async function boot() {
     buildPhone();
     initMarquees();
     let rz;
+    let lastSize = `${innerWidth}x${heroSec.clientHeight}`;
     addEventListener('resize', () => {
+      // a phone toolbar sliding in or out leaves the svh-sized scenes as they were: nothing to rebuild
+      const size = `${innerWidth}x${heroSec.clientHeight}`;
+      if (coarse && size === lastSize) return;
+      lastSize = size;
       clearTimeout(rz);
       rz = setTimeout(() => { buildPhone(); heroTl.progress(heroStep); ScrollTrigger.refresh(); }, 160);
     });

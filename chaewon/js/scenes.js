@@ -1,7 +1,8 @@
 // Scenes hold the page on a full-screen section and advance one step per
 // gesture: a wheel swipe, a touch swipe or an arrow key. A fling of any size
 // stops at the first scene it crosses, and the momentum tail of the gesture
-// that got caught never counts as a new step.
+// that got caught never counts as a new step. The page slows into a scene at
+// the speed it already had, instead of slamming to a stop on top of it.
 
 const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
@@ -15,10 +16,15 @@ export class Scenes {
     this.nav = false;
     this.prevY = window.scrollY;
     this.wheel = { last: 0, v: 0, peak: 0, decayed: false, acc: 0, dir: 0, used: false };
-    this.touch = { y: null, used: false };
+    this.touch = { y: null, last: null, used: false };
     this.input = 'wheel';
     this.touchHold = false;   // after a touch release the finger must not fight the glide
     this.frozen = false;      // set while the intro plays: no scrolling under the loader
+    this.catching = null;     // { s, dir, ty }: the page is being steered onto a scene's top
+    this.catchTimer = 0;
+    this.vel = 0;             // px per ms, measured from Lenis frames
+    this.lastY = window.scrollY;
+    this.lastT = performance.now();
     this.onLock = null;
 
     this.onWheel = this.onWheel.bind(this);
@@ -36,7 +42,7 @@ export class Scenes {
     window.addEventListener('keydown', this.onKey);
     window.addEventListener('scroll', this.onScroll, { passive: true });
     document.addEventListener('focusin', (e) => this.onFocus(e));
-    lenis.on('scroll', () => this.check(window.scrollY));
+    lenis.on('scroll', () => { this.track(window.scrollY); this.check(window.scrollY); });
     window.addEventListener('resize', () => {
       if (this.active) window.scrollTo(0, this.anchor(this.active));
     });
@@ -51,10 +57,18 @@ export class Scenes {
     return Math.round(s.el.getBoundingClientRect().top + window.scrollY);
   }
 
-  /** Called on every scroll frame: catch the first scene crossed since the last frame. */
+  track(y) {
+    const now = performance.now();
+    const dt = now - this.lastT;
+    this.vel = dt > 0 && dt < 100 ? this.vel * 0.4 + ((y - this.lastY) / dt) * 0.6 : 0;
+    this.lastY = y;
+    this.lastT = now;
+  }
+
+  /** Called on every scroll frame: catch the first scene the page is about to cross. */
   check(y) {
     if (this.active) return;
-    if (this.nav) { this.prevY = y; return; }
+    if (this.nav || this.catching) { this.prevY = y; return; }
     const dir = Math.sign(y - this.prevY);
     // a native jump (Home/End, scrollTo, a resize) lands where it lands; only real scrolling gets caught
     if (this.lenis.isScrolling !== 'smooth' && Math.abs(y - this.prevY) > window.innerHeight * 1.5) {
@@ -62,21 +76,63 @@ export class Scenes {
       this.settle(dir, y <= 1 ? 0 : null);
       return;
     }
+    // Lenis runs ahead of the page. When the place it is heading for lies past a scene, or just short of
+    // one (a scene is never left a finger's width from its place), steer it onto that scene's top, so the
+    // page slows into place there.
+    const to = this.lenis.targetScroll;
+    if (!this.lenis.isLocked && Math.abs(to - y) > 1) {
+      const tdir = Math.sign(to - y);
+      const s = this.first(y, to + tdir * window.innerHeight * 0.15);
+      // (when Lenis is already easing exactly onto that top, as at the top of the page, it just lands)
+      if (s && Math.abs(to - this.anchor(s)) > 0.5) { this.steer(s, tdir, y); this.prevY = y; return; }
+    }
+    // anything else that crossed a scene (keys, a locked glide) stops on it
     if (dir) {
-      let hit = null;
-      let best = Infinity;
-      for (const s of this.list) {
-        const a = this.anchor(s);
-        const crossed = dir > 0 ? this.prevY < a && y >= a : this.prevY > a && y <= a;
-        const dist = Math.abs(a - this.prevY);
-        if (crossed && dist < best) { best = dist; hit = s; }
-      }
-      if (hit) { this.lock(hit, dir > 0 ? 0 : hit.steps - 1); return; }
+      const s = this.first(this.prevY, y);
+      if (s) { this.lock(s, dir > 0 ? 0 : s.steps - 1); return; }
     }
     this.prevY = y;
   }
 
+  /** The nearest scene whose top lies past `from` on the way to `to`. */
+  first(from, to) {
+    const dir = Math.sign(to - from);
+    let hit = null;
+    let best = Infinity;
+    for (const s of this.list) {
+      const a = this.anchor(s);
+      const crossed = dir > 0 ? from < a && to >= a : from > a && to <= a;
+      if (crossed && Math.abs(a - from) < best) { best = Math.abs(a - from); hit = s; }
+    }
+    return hit;
+  }
+
+  steer(s, dir, y) {
+    const dist = Math.abs(this.anchor(s) - y);
+    // keep the speed the page already has: an ease-out-cubic starts at 3·dist/T
+    const T = Math.min(0.9, Math.max(0.3, (3 * dist) / Math.max(Math.abs(this.vel), 0.3) / 1000));
+    this.catching = { s, dir, ty: this.touch.last };
+    clearTimeout(this.catchTimer);
+    this.catchTimer = setTimeout(() => this.arrive(), T * 1000 + 300);
+    this.lenis.scrollTo(this.anchor(s), { duration: T, easing: easeOut, force: true, onComplete: () => this.arrive() });
+  }
+
+  arrive() {
+    const c = this.catching;
+    if (!c) return;
+    this.letGo();
+    if (Math.abs(window.scrollY - this.anchor(c.s)) <= 2) this.lock(c.s, c.dir > 0 ? 0 : c.s.steps - 1);
+  }
+
+  /** Stop steering; whatever input comes next moves the page from where it is. */
+  letGo() {
+    clearTimeout(this.catchTimer);
+    this.catching = null;
+    this.prevY = window.scrollY;
+  }
+
   lock(s, step) {
+    if (this.catching) this.letGo();
     this.active = s;
     const prev = this.step;
     this.step = step;
@@ -105,7 +161,7 @@ export class Scenes {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const to = dir > 0 ? a + s.el.offsetHeight : a - window.innerHeight;
       // wheel: the glide stays catchable, so a fling that keeps going still stops at the next scene.
-      // touch: the glide is locked and the rest of the swipe is held, or native scrolling cancels it.
+      // touch: the glide is locked and the rest of the swipe is held, or the finger still on the glass cancels it.
       const viaTouch = this.input === 'touch';
       this.touchHold = viaTouch;
       this.navigate(Math.max(0, Math.min(max, to)), 1.05, dir, false, null, viaTouch);
@@ -114,6 +170,7 @@ export class Scenes {
 
   /** Programmatic scroll. With `guard` (anchor links) it never gets caught on the way. */
   navigate(y, duration = 1.3, dir = 0, guard = true, landStep = null, lock = false) {
+    if (this.catching) this.letGo();
     this.nav = guard;
     clearTimeout(this.navTimer);
     const done = () => {
@@ -202,6 +259,11 @@ export class Scenes {
       if (v < w.peak * 0.5) w.decayed = true;
     }
     w.v = v;
+    if (this.catching) {
+      if (e.cancelable) e.preventDefault();       // Lenis ignores input while steering, so the browser must too
+      if (fresh && Math.sign(dy) === -this.catching.dir) this.letGo();   // a push the other way lets go
+      return;
+    }
     if (!this.active) {
       if (this.nav && fresh) { clearTimeout(this.navTimer); this.nav = false; this.prevY = window.scrollY; }
       return;
@@ -217,13 +279,25 @@ export class Scenes {
   }
 
   onTouchStart(e) {
+    if (e.touches.length > 1) { this.touch.y = null; return; }   // two fingers: pinch zoom, not a step
     this.touch.y = e.touches[0].clientY;
+    this.touch.last = this.touch.y;
     this.touch.used = false;
     if (this.nav && !this.active && !this.touchHold) { clearTimeout(this.navTimer); this.nav = false; this.prevY = window.scrollY; }
   }
 
   onTouchMove(e) {
+    if (e.touches.length > 1) return;
+    const fy = e.touches[0].clientY;
+    this.touch.last = fy;
     if (this.frozen || this.touchHold) { if (e.cancelable) e.preventDefault(); return; }
+    if (this.catching) {
+      if (e.cancelable) e.preventDefault();
+      const c = this.catching;
+      if (c.ty == null) c.ty = fy;
+      if (Math.sign(c.ty - fy) === -c.dir && Math.abs(c.ty - fy) > 24) this.letGo();   // the finger turned back
+      return;
+    }
     if (!this.active) return;
     this.input = 'touch';
     if (e.cancelable) e.preventDefault();
@@ -235,6 +309,7 @@ export class Scenes {
 
   onTouchEnd() {
     this.touch.y = null;
+    this.touch.last = null;
   }
 
   onKey(e) {
@@ -242,7 +317,7 @@ export class Scenes {
     const tag = (e.target && e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
     const k = e.key;
-    if (this.frozen) {
+    if (this.frozen || (this.catching && k !== 'Home' && k !== 'End')) {
       if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' ', 'Home', 'End'].includes(k)) e.preventDefault();
       return;
     }
